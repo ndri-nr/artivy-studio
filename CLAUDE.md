@@ -80,10 +80,15 @@ Godot (`/opt/homebrew/bin/godot`). Android builds need **JDK 21**
 (`/usr/libexec/java_home -v 21`) — the default `JAVA_HOME` on this Mac is
 Corretto 24, and Gradle fails inside its daemon rather than blaming Java.
 
-Gradle versions are deliberately **not** unified: wordle is on 9.1.0 (AGP 9.0.1),
-pawdoku on 8.14 (AGP 8.11.1), and stacko on 8.11.1 because Godot's Android build
-template pins it — that wrapper is regenerated from `android_source.zip` and is
-not ours to edit.
+Both Flutter apps are on **Gradle 9.1.0 + AGP 9.0.1 + Kotlin 2.3.20**, which keeps
+one cached Gradle distribution instead of two. `google_mobile_ads` must stay **>= 9**
+in both: older majors fail Gradle 9 configuration with `unknown property 'all' for
+configuration container`, so that plugin sets the floor under the whole toolchain.
+
+StackO! stays on Gradle **8.11.1** and cannot be unified — Godot generates that
+wrapper from `android_source.zip` into the gitignored `stacko/android/` tree, so the
+version belongs to the engine and any edit is erased by the next
+`--install-android-build-template`.
 
 ## Release signing (all three games)
 
