@@ -4,14 +4,23 @@ Workspace for the **Artivy** mobile games and the publisher site. This repo hold
 the workspace documentation and a bootstrap script — **not** the projects
 themselves.
 
-## The four projects
+## The projects
 
-| Dir        | What                                            | Stack                | Remote                       |
-|------------|-------------------------------------------------|----------------------|------------------------------|
-| `wordle/`  | **Kata·Word** — Wordle-style word game          | Flutter · Riverpod   | `github.com/ndri-nr/wordle`  |
-| `pawdoku/` | **Pawdoku** — cat-themed logic puzzle           | Flutter · Provider   | `github.com/ndri-nr/pawdoku` |
-| `stacko/`  | **StackO!** — isometric neon block stacker      | Godot 4.7 · GDScript | `github.com/ndri-nr/stacko`  |
-| `artivy/`  | Publisher site incl. every game's legal pages   | static HTML · Pages  | `github.com/ndri-nr/artivy`  |
+| Dir                  | What                                          | Stack                | Remote                                 |
+|----------------------|-----------------------------------------------|----------------------|----------------------------------------|
+| `wordle/`            | **Kata·Word** — Wordle-style word game        | Flutter · Riverpod   | `github.com/ndri-nr/wordle`            |
+| `pawdoku/`           | **Pawdoku** — cat-themed logic puzzle         | Flutter · Provider   | `github.com/ndri-nr/pawdoku`           |
+| `stacko/`            | **StackO!** — isometric neon block stacker    | Godot 4.7 · GDScript | `github.com/ndri-nr/stacko`            |
+| `artivy/`            | Publisher site incl. every game's legal pages | static HTML · Pages  | `github.com/ndri-nr/artivy`            |
+| `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob   | one text file        | `github.com/ndri-nr/ndri-nr.github.io` |
+
+`ndri-nr.github.io/` is a separate repo and has to be. AdMob takes the domain from
+an app's Play listing and crawls `https://<domain>/app-ads.txt` — the root, path
+ignored. `artivy/` is a GitHub Pages *project* site served at `/artivy/` and can
+never answer for the root, so the file placed there would exist and never be
+found. Only a repo named `<user>.github.io` serves that root. It is also the only
+public repo besides `artivy/`, which is fine: `app-ads.txt` is a public
+declaration by design and the publisher ID in it travels in every ad request.
 
 ## Setting up a machine
 
@@ -25,7 +34,7 @@ cd artivy-studio
 
 Each project ships on its own schedule, to its own store listing, with no shared
 build, no shared package and no CI that builds them together. Submodules would buy
-a consistent snapshot of all four — which nothing here consumes — and charge for it
+a consistent snapshot of them all — which nothing here consumes — and charge for it
 on every single change: two commits instead of one, a detached HEAD by default, and
 a stale pointer whenever the second commit is forgotten.
 

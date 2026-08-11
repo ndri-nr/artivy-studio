@@ -4,16 +4,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`artivy-studio` is a **workspace folder, not a repo** — it holds four
-independent git repos, each with its own remote and `main` branch. There is no
-root git, no root build, no shared package. Always work inside one subproject.
+`artivy-studio` holds several **independent** git repos, each with its own remote
+and `main` branch. No root build, no shared package. Always work inside one
+subproject, and commit there — never at the root.
 
-| Dir        | What                                          | Remote                          |
-|------------|-----------------------------------------------|---------------------------------|
-| `wordle/`  | **Kata·Word** — Flutter Wordle-style game     | `github.com/ndri-nr/wordle`     |
-| `pawdoku/` | **Pawdoku** — Flutter cat logic-puzzle game   | `github.com/ndri-nr/pawdoku`    |
-| `stacko/`  | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`   |
-| `artivy/`  | Publisher website (static HTML, GitHub Pages) | `github.com/ndri-nr/artivy`     |
+The root is itself a small git repo, but a **docs-only** one: it tracks
+`README.md`, `CLAUDE.md`, `bootstrap.sh` and `.gitignore`, nothing else. Every
+subproject directory is gitignored so git cannot record it as a half-made
+gitlink. `bootstrap.sh` clones them on a fresh machine and deliberately never
+pulls — each may hold work in progress.
+
+| Dir                  | What                                            | Remote                                 |
+|----------------------|-------------------------------------------------|----------------------------------------|
+| `wordle/`            | **Kata·Word** — Flutter Wordle-style game       | `github.com/ndri-nr/wordle`            |
+| `pawdoku/`           | **Pawdoku** — Flutter cat logic-puzzle game     | `github.com/ndri-nr/pawdoku`           |
+| `stacko/`            | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`            |
+| `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
+| `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
+
+**`app-ads.txt` has to live in its own repo, not in `artivy/`.** AdMob takes the
+domain from an app's Play listing and crawls `https://<domain>/app-ads.txt` — the
+root, with the listing URL's path ignored. `artivy/` is a Pages *project* site
+served at `/artivy/`, so it can never answer for the root; the file placed there
+would exist and never be crawled. Only a repo named `<user>.github.io` serves it.
+
+The file belongs to the **domain**, not to an app: one line authorises the
+publisher ID for every app whose listing points at this domain, so Kata·Word and
+StackO! need nothing added when their turn comes. The per-app step is on the store
+side — each listing's **Website** field must carry this domain, and an empty one
+fails verification with a message that blames the file instead.
 
 `wordle/CLAUDE.md`, `pawdoku/CLAUDE.md` and `stacko/CLAUDE.md` are the
 authoritative per-project guides (architecture, gotchas, hidden features).

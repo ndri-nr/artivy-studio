@@ -1,4 +1,4 @@
-# The four projects are independent repos with their own remotes, cloned here by
+# The projects are independent repos with their own remotes, cloned here by
 # bootstrap.sh. They are NOT submodules and must not be tracked: git would
 # otherwise record each one as a half-made gitlink, which is the confusion this
 # workspace is arranged to avoid. See README.md.
@@ -6,5 +6,6 @@
 /pawdoku/
 /stacko/
 /artivy/
+/ndri-nr.github.io/
 
 .DS_Store
