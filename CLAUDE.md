@@ -58,8 +58,9 @@ data collection, ads, or purchases means editing the matching legal page in
 `artivy/` breaks a live in-app link.
 
 The three games' policies are **not interchangeable**: the Flutter pair ships
-Firebase Crashlytics and Kata·Word also ships Analytics, while StackO! has
-neither, so its page must not be copied from theirs. StackO! pointed at
+Firebase Crashlytics and Kata·Word also ships Analytics, while StackO! ships
+Analytics + Crashlytics **plus `firebase-crashlytics-ndk`**, which neither Flutter
+app has any use for — so no page here may be copied from another. StackO! pointed at
 Kata·Word's page for a while, which would have failed review — Play checks that
 the policy describes the app it is attached to.
 
@@ -160,10 +161,20 @@ the idea, not the file.
   toggles ads for that device after 7 seconds on the Version row
   (`AD_HOLD_SECONDS`). The long holds and the tap-vs-hold suppression are
   load-bearing — do not "fix" them.
-- AdMob unit ids are still Google **test** ids in all three; see each
-  `PUBLISHING.md`.
+- AdMob unit ids: **pawdoku is live** (real units under publisher
+  `pub-8668013395284480`, since 1.0.1+3), wordle and stacko still carry Google's
+  **test** ids — `_testInterstitial` etc. in `wordle/lib/services/ad_service.dart`,
+  `USE_TEST_ADS = true` in `stacko/scripts/ads.gd`. See each `PUBLISHING.md`.
+- **Advertising ID: all three answer "yes" on Play.** `google_mobile_ads` (and the
+  Godot AdMob plugin) add `com.google.android.gms.permission.AD_ID`, Firebase
+  Analytics adds `android.permission.AD_ID`, and Play refuses to let the question
+  disagree with the manifest. Removing the permission only costs personalised ads.
 - Crash/analytics differ, and the privacy pages depend on it: wordle has
-  Crashlytics + Analytics, pawdoku Crashlytics only, **stacko neither**.
+  Crashlytics + Analytics, pawdoku Crashlytics only, **stacko Crashlytics +
+  Analytics + the NDK artifact** (it is a native game, so Java-only crash
+  reporting would record nothing). In stacko the wiring is not a dependency line
+  but `tools/patch_android_firebase.py`, replayed after every
+  `--install-android-build-template`.
 
 ## Conventions
 
