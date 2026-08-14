@@ -19,6 +19,7 @@ pulls — each may hold work in progress.
 | `wordle/`            | **Kata·Word** — Flutter Wordle-style game       | `github.com/ndri-nr/wordle`            |
 | `pawdoku/`           | **Pawdoku** — Flutter cat logic-puzzle game     | `github.com/ndri-nr/pawdoku`           |
 | `stacko/`            | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`            |
+| `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
@@ -41,8 +42,8 @@ StackO! need nothing added when their turn comes. The per-app step is on the sto
 side — each listing's **Website** field must carry this domain, and an empty one
 fails verification with a message that blames the file instead.
 
-`wordle/CLAUDE.md`, `pawdoku/CLAUDE.md` and `stacko/CLAUDE.md` are the
-authoritative per-project guides (architecture, gotchas, hidden features).
+`wordle/CLAUDE.md`, `pawdoku/CLAUDE.md`, `stacko/CLAUDE.md` and `2048/CLAUDE.md`
+are the authoritative per-project guides (architecture, gotchas, hidden features).
 **Read the relevant one before touching that project.** Each also has a
 `PUBLISHING.md` with the Play Store release flow.
 
@@ -59,17 +60,30 @@ Pages site**:
 - `pawdoku/lib/screens/home_screen.dart` → `.../artivy/pawdoku/*.html`
 - `stacko/scripts/menu_ui.gd` (`PRIVACY_URL`/`TERMS_URL`) → `.../artivy/stacko/*.html`
 
+**2048 is the exception: it has no in-app legal links yet.** Its pages at
+`artivy/2048/` exist for the Play listing's Privacy-policy field; nothing in the
+app opens them, so there is no URL in the app to break. Wiring a link in later
+means the same coupling as the other three.
+
 Site path for Kata·Word is `kata_word/`, not `wordle/`. Changing a game's
 data collection, ads, or purchases means editing the matching legal page in
 `artivy/` too, or the store listing goes stale. Renaming/moving a page in
 `artivy/` breaks a live in-app link.
 
-The three games' policies are **not interchangeable**: the Flutter pair ships
+The games' policies are **not interchangeable**: the Flutter pair ships
 Firebase Crashlytics and Kata·Word also ships Analytics, while StackO! ships
 Analytics + Crashlytics **plus `firebase-crashlytics-ndk`**, which neither Flutter
 app has any use for — so no page here may be copied from another. StackO! pointed at
 Kata·Word's page for a while, which would have failed review — Play checks that
 the policy describes the app it is attached to.
+
+2048 differs again, and in a way that matters more than the SDK list: its
+Analytics events carry **gameplay figures** (run score, highest tile, whether the
+run passed 2048, chosen language) rather than aggregate screen views, and its
+SharedPreferences file rides Android's `allowBackup`, so scores can reach the
+player's Google account. Its page says both. It also has **no UMP consent flow**,
+unlike Pawdoku and StackO! — so its page must not promise a consent screen, and
+an EEA release needs that flow built first.
 
 ## Commands
 
@@ -98,6 +112,19 @@ godot --path . --headless --script tools/smoke_test.gd   # the real regression t
 godot --path . --script tools/screenshot.gd -- <dir>     # needs a display
 ```
 
+Native Android project (`2048/`) — Gradle wrapper only, no Flutter, no Godot:
+
+```bash
+echo "sdk.dir=$HOME/Library/Android/sdk" > local.properties  # once per machine
+./gradlew :app:assembleDebug                                 # debug APK
+./gradlew :app:testDebugUnitTest                             # JVM unit tests
+./gradlew :app:bundleRelease                                 # Play artifact (needs the key)
+```
+
+Wrapper is Gradle **9.1.0**, AGP 8.13.0, compileSdk 36, minSdk 26, Java 17 — a
+fourth toolchain, unrelated to the two above. `local.properties` is gitignored, so
+a fresh clone cannot configure until it exists.
+
 Website (`artivy/`): no build step, no deps. Open `index.html` directly, or
 `python3 -m http.server`. Pushing to `main` deploys the whole repo to GitHub
 Pages via `.github/workflows/static.yml`.
@@ -117,7 +144,7 @@ wrapper from `android_source.zip` into the gitignored `stacko/android/` tree, so
 version belongs to the engine and any edit is erased by the next
 `--install-android-build-template`.
 
-## Release signing (all three games)
+## Release signing (all four games)
 
 Each app has its own upload key in `~/key-store/<game>-upload.jks`, outside every
 repo, and **no password is stored on disk**. Passwords live in the macOS login
@@ -132,6 +159,14 @@ Keychain and are read at build time:
   `_PASSWORD` from the environment; fill the last one from the Keychain the same
   way. `export_presets.cfg` is tracked, which is exactly why the password must
   never be typed into it.
+- **2048** — same Keychain shape as the Flutter pair (`app/build.gradle.kts`
+  shells out to `security find-generic-password -s puzzle2048-upload-keystore -w`,
+  `key.properties` at the repo root holds only alias and path). Create the key,
+  the Keychain item and the properties file in one go with `./tools/upload_key.sh`,
+  which also prints the SHA-1/SHA-256 fingerprints Firebase wants. It replaced a
+  **debug-keystore fallback** in `signingConfigs["release"]`: that produced an
+  installable release APK, and a bundle Play would accept once and then never let
+  you update, since the upload certificate can't change.
 
 Store one copy of each password off this machine as well. The Keychain dies with
 the laptop, and a `.jks` without its password is as useless as the password
@@ -144,8 +179,12 @@ usually transfers — but they are **separate codebases with different stacks**,
 StackO! is a third stack again. Never import or copy-reference across them; port
 the idea, not the file.
 
-- Android ids: `id.artivy.wordle`, `id.artivy.pawdoku`, `id.artivy.stacko`.
-  Publisher "Artivy".
+- Android ids: `id.artivy.wordle`, `id.artivy.pawdoku`, `id.artivy.stacko`,
+  `id.artivy.puzzle2048`. Publisher "Artivy".
+- **2048 is outside this shared shape.** It is native Java, has no coins, no
+  store, no themes, no daily challenge, no hidden long-press, and no rewarded ad —
+  only a banner and an interstitial. Do not go looking for the patterns below in
+  it; `2048/CLAUDE.md` describes what it actually has.
 - Fully offline gameplay. Persistence is `shared_preferences` behind a typed
   wrapper (`GameStorage`/`Prefs` vs `Storage`) in the Flutter pair, and a
   `ConfigFile` behind `Save` (`user://stacko.cfg`) in StackO! — never touch raw

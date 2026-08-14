@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
 # ndri-nr.github.io serves app-ads.txt from the domain root, which is the only
 # place AdMob will look for it — the artivy site is a project page at /artivy/
 # and structurally cannot answer for the root. Its own README explains why.
-repos=(wordle pawdoku stacko artivy ndri-nr.github.io)
+repos=(wordle pawdoku stacko 2048 artivy ndri-nr.github.io)
 
 for name in "${repos[@]}"; do
     if [ -d "$name/.git" ]; then
@@ -26,7 +26,12 @@ cat <<'EOF'
 
 Toolchain these need, none of it installed by this script:
   brew install --cask flutter godot     # wordle, pawdoku / stacko
+  Android SDK (Android Studio)          # 2048 builds with Gradle only, no Flutter
   JDK 21 for Android builds             # /usr/libexec/java_home -v 21
+
+2048 also needs its own local.properties pointing at the SDK — gitignored, so a
+fresh clone has none:
+  echo "sdk.dir=$HOME/Library/Android/sdk" > 2048/local.properties
 
 Release signing reads each keystore password from the login Keychain, so a fresh
 machine needs those items restored from your password manager before any release
