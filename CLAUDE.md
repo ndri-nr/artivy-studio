@@ -60,10 +60,8 @@ Pages site**:
 - `pawdoku/lib/screens/home_screen.dart` → `.../artivy/pawdoku/*.html`
 - `stacko/scripts/menu_ui.gd` (`PRIVACY_URL`/`TERMS_URL`) → `.../artivy/stacko/*.html`
 
-**2048 is the exception: it has no in-app legal links yet.** Its pages at
-`artivy/2048/` exist for the Play listing's Privacy-policy field; nothing in the
-app opens them, so there is no URL in the app to break. Wiring a link in later
-means the same coupling as the other three.
+- `2048/app/src/main/res/values/strings.xml` (`privacy_policy_url`/`terms_url`) →
+  `.../artivy/2048/*.html`, opened from its Settings panel.
 
 Site path for Kata·Word is `kata_word/`, not `wordle/`. Changing a game's
 data collection, ads, or purchases means editing the matching legal page in
@@ -82,8 +80,8 @@ Analytics events carry **gameplay figures** (run score, highest tile, whether th
 run passed 2048, chosen language) rather than aggregate screen views, and its
 SharedPreferences file rides Android's `allowBackup`, so scores can reach the
 player's Google account. Its page says both. It also has **no UMP consent flow**,
-unlike Pawdoku and StackO! — so its page must not promise a consent screen, and
-an EEA release needs that flow built first.
+which is why its page describes the consent step and the Settings row that reopens
+it.
 
 ## Commands
 
@@ -211,6 +209,12 @@ the idea, not the file.
   `pub-8668013395284480`, since 1.0.1+3), wordle and stacko still carry Google's
   **test** ids — `_testInterstitial` etc. in `wordle/lib/services/ad_service.dart`,
   `USE_TEST_ADS = true` in `stacko/scripts/ads.gd`. See each `PUBLISHING.md`.
+- **UMP consent: all four gather it, only three can reopen it.** Kata·Word, 2048 and
+  StackO! ask before the first ad request *and* expose an "Ad privacy options" entry
+  where Google reports it as required. **Pawdoku gathers consent but offers no way
+  back in** (`_gatherConsent` in `lib/services/ad_service.dart`, no Settings entry) —
+  Google's EU user consent policy requires that entry point for users who were asked,
+  and Pawdoku is the one app already on production. Fix that before any EEA push.
 - **Advertising ID: all three answer "yes" on Play.** `google_mobile_ads` (and the
   Godot AdMob plugin) add `com.google.android.gms.permission.AD_ID`, Firebase
   Analytics adds `android.permission.AD_ID`, and Play refuses to let the question
