@@ -22,6 +22,13 @@ pulls — each may hold work in progress.
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
+**Only Pawdoku is on Play production** (as of 2026-08-14; Kata·Word and StackO!
+are not released yet). That decides who needs a version bump: a release build of
+a **shipped** app must raise `version:` in `pubspec.yaml` — name *and* build
+number — because Play rejects a versionCode it has already seen. An app that has
+never shipped can rebuild at the same version indefinitely, so don't bump wordle
+or stacko unless asked. Re-check this line when another game goes live.
+
 **`app-ads.txt` has to live in its own repo, not in `artivy/`.** AdMob takes the
 domain from an app's Play listing and crawls `https://<domain>/app-ads.txt` — the
 root, with the listing URL's path ignored. `artivy/` is a Pages *project* site
