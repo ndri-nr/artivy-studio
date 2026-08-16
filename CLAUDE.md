@@ -115,7 +115,8 @@ it.
 
 Each game is getting a playable web version on the Pages site, at
 `artivy/games/<slug>/play.html` in the repo and `/artivy/<slug>/play.html` once
-the deploy flattens `games/` away. **2048, Rekta and Kata·Word are built; two to go.**
+the deploy flattens `games/` away. **2048, Rekta, Kata·Word and Pawdoku are
+built; StackO! is the one still to do.**
 
 These share **no code with the Android repos** and are not ports of them. The
 rules were rewritten in JavaScript from what each game does; the Dart, Java and
@@ -181,7 +182,15 @@ reproducing `java.util.Random` bit for bit, which buys a player nothing.
 Each game's privacy page has to describe the browser build separately from the
 app: local storage rather than SharedPreferences, no Android backup, and for now
 no ads, no analytics and no crash reporting. 2048, Rekta and Kata·Word have that
-section; Pawdoku and StackO! need it before their play pages ship.
+section; StackO! needs it before its play page ships.
+
+**Pawdoku's generator is fast only because the solver searches the smallest
+region first.** Proving a board has no *second* solution means exhausting the
+search tree, and that is where the whole cost sits. In region order a 9×9 took
+~290ms to generate — enough to stall a tap, and enough that a worker thread
+looked necessary. Ordering by fewest candidate cells first took it to ~3ms, so
+there is no worker and no build step. `selftest.html` times it and fails below
+250ms, which is the guard against someone quietly removing that sort.
 
 **Back buttons are links, not `history.back()`.** A game page goes up to the site
 index, a legal page up to its own game. The old version sent a player wherever
