@@ -115,7 +115,7 @@ it.
 
 Each game is getting a playable web version on the Pages site, at
 `artivy/games/<slug>/play.html` in the repo and `/artivy/<slug>/play.html` once
-the deploy flattens `games/` away. **2048 and Rekta are built; three to go.**
+the deploy flattens `games/` away. **2048, Rekta and Kata·Word are built; two to go.**
 
 These share **no code with the Android repos** and are not ports of them. The
 rules were rewritten in JavaScript from what each game does; the Dart, Java and
@@ -165,10 +165,28 @@ AdSense on later cannot shove the board down the page. Whatever goes in that slo
 stays clear of the board — a missed swipe landing on an ad is an accidental
 click, and enough of those close a publisher account.
 
+**Kata·Word's browser build shows the same daily word as the Android app, and
+that is a promise with two halves.** `model.js` reproduces `date_seed.dart`
+exactly — `Math.imul` where Dart splits the multiply into 16-bit halves, both
+being 32-bit-exact — and `games/kata_word/words/` is a copy of the app's
+`assets/words/`. Change either the hash or a `daily_*.txt` on one side only and
+the two platforms hand out different words from that day forward. `selftest.html`
+pins it against indices produced by running the app's own Dart, not by restating
+its arithmetic. It is the one place where copying data across from a game repo is
+deliberate; nothing else here does that, and it is a copy, not an import.
+
+Rekta is the opposite case and for a good reason: matching its levels would mean
+reproducing `java.util.Random` bit for bit, which buys a player nothing.
+
 Each game's privacy page has to describe the browser build separately from the
 app: local storage rather than SharedPreferences, no Android backup, and for now
-no ads, no analytics and no crash reporting. 2048's page has that section; the
-other four need it before their play pages ship.
+no ads, no analytics and no crash reporting. 2048, Rekta and Kata·Word have that
+section; Pawdoku and StackO! need it before their play pages ship.
+
+**Back buttons are links, not `history.back()`.** A game page goes up to the site
+index, a legal page up to its own game. The old version sent a player wherever
+they happened to arrive from, which for a policy link opened out of an app's
+Settings screen was nowhere at all.
 
 ## Commands
 
