@@ -176,15 +176,19 @@ AdSense on later cannot shove the board down the page. Whatever goes in that slo
 stays clear of the board — a missed swipe landing on an ad is an accidental
 click, and enough of those close a publisher account.
 
-**Kata·Word's browser build shows the same daily word as the Android app, and
-that is a promise with two halves.** `model.js` reproduces `date_seed.dart`
-exactly — `Math.imul` where Dart splits the multiply into 16-bit halves, both
-being 32-bit-exact — and `games/kata_word/words/` is a copy of the app's
-`assets/words/`. Change either the hash or a `daily_*.txt` on one side only and
-the two platforms hand out different words from that day forward. `selftest.html`
-pins it against indices produced by running the app's own Dart, not by restating
-its arithmetic. It is the one place where copying data across from a game repo is
-deliberate; nothing else here does that, and it is a copy, not an import.
+**The browser builds are the games, not the meta around them.** No coins, no
+store, no trophies, no themes, no hints and no daily challenge — Kata·Word's
+daily word, Pawdoku's timed daily and Rekta's rewarded hint are all absent, and
+each game's privacy page says so explicitly, because the app's page describes
+purchases and rewarded adverts that do not exist here.
+
+Kata·Word's word lists under `games/kata_word/words/` are still copies of the
+app's `assets/words/`, and that is the one place data crosses over from a game
+repo deliberately. They are the output of a filtering pipeline with real
+judgement in it — dictionary consensus for Indonesian, capitalisation as a
+proper-noun detector for English — and rebuilding it in JavaScript would produce
+a worse list. Only `answers` and `guesses` are here; `daily_*.txt` went with the
+daily challenge.
 
 Rekta is the opposite case and for a good reason: matching its levels would mean
 reproducing `java.util.Random` bit for bit, which buys a player nothing.
