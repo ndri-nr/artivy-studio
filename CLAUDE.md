@@ -115,7 +115,7 @@ it.
 
 Each game is getting a playable web version on the Pages site, at
 `artivy/games/<slug>/play.html` in the repo and `/artivy/<slug>/play.html` once
-the deploy flattens `games/` away. **2048 is the only one built so far.**
+the deploy flattens `games/` away. **2048 and Rekta are built; three to go.**
 
 These share **no code with the Android repos** and are not ports of them. The
 rules were rewritten in JavaScript from what each game does; the Dart, Java and
@@ -139,9 +139,13 @@ Adding a build step here means the site can no longer be checked by opening it.
   pass/fail lines for the rules that would silently cost a player their game.
   Run it after touching a model.
 
-**The board's size is a declared constant, not a measurement.** `--play-chrome`
-in `play.css` is the height of everything that is not the board, and the board is
-`min(max, 100%, 100dvh - var(--play-chrome))`. An earlier version measured the
+**The board's size is a declared constant, not a measurement.**
+`--play-chrome-stacked` is the height of everything that is not the board, and the
+board is `min(max, 100%, (100dvh - var(--play-chrome)) * var(--board-ratio))`. A
+game overrides `--play-chrome-stacked` for its own panel; the landscape media query
+sets `--play-chrome` itself, so overriding one never breaks the other.
+`--board-ratio` is width ÷ height, left at 1 by 2048 and set to `cols/rows` by
+Rekta's portrait grids. An earlier version measured the
 layout from JavaScript and set the size from that; it was wrong on load, because
 the web font had not swapped in yet, and wrong again on resize, because it read a
 viewport that was still moving. JavaScript now only reads the board's final size
