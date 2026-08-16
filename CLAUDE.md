@@ -20,15 +20,24 @@ pulls — each may hold work in progress.
 | `pawdoku/`           | **Pawdoku** — Flutter cat logic-puzzle game     | `github.com/ndri-nr/pawdoku`           |
 | `stacko/`            | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`            |
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
+| `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
-**Only Pawdoku is on Play production** (as of 2026-08-14; Kata·Word and StackO!
-are not released yet). That decides who needs a version bump: a release build of
-a **shipped** app must raise `version:` in `pubspec.yaml` — name *and* build
-number — because Play rejects a versionCode it has already seen. An app that has
-never shipped can rebuild at the same version indefinitely, so don't bump wordle
-or stacko unless asked. Re-check this line when another game goes live.
+**Pawdoku is on Play production; Kata·Word and StackO! are in closed testing**
+(as of 2026-08-15). All three need a version bump before any new release build.
+
+A versionCode is unique per app across **every** Play track, not just
+production — a bundle uploaded to closed testing burns that number exactly as a
+production release does. So "has it shipped to production yet" is the wrong
+question; the question is "has anything ever been uploaded for it". Raise
+`version:` in `pubspec.yaml` — name *and* build number — for Pawdoku, Kata·Word
+and StackO!. Only 2048 and Pawkour can rebuild at the same version, and only
+until their first upload.
+
+Games sitting in testing are finished games, not stalled ones. Don't read
+anything about what this developer can or cannot finish from which titles are on
+production — that inference has been drawn once here, and it was wrong.
 
 **`app-ads.txt` has to live in its own repo, not in `artivy/`.** AdMob takes the
 domain from an app's Play listing and crawls `https://<domain>/app-ads.txt` — the
@@ -42,7 +51,8 @@ StackO! need nothing added when their turn comes. The per-app step is on the sto
 side — each listing's **Website** field must carry this domain, and an empty one
 fails verification with a message that blames the file instead.
 
-`wordle/CLAUDE.md`, `pawdoku/CLAUDE.md`, `stacko/CLAUDE.md` and `2048/CLAUDE.md`
+`wordle/CLAUDE.md`, `pawdoku/CLAUDE.md`, `stacko/CLAUDE.md`, `2048/CLAUDE.md` and
+`rekta/CLAUDE.md`
 are the authoritative per-project guides (architecture, gotchas, hidden features).
 **Read the relevant one before touching that project.** Each also has a
 `PUBLISHING.md` with the Play Store release flow.
@@ -62,6 +72,8 @@ Pages site**:
 
 - `2048/app/src/main/res/values/strings.xml` (`privacy_policy_url`/`terms_url`) →
   `.../artivy/2048/*.html`, opened from its Settings panel.
+- `rekta/app/src/main/res/values/strings.xml` (same two keys) →
+  `.../artivy/rekta/*.html`, also from its Settings panel.
 
 Site path for Kata·Word is `kata_word/`, not `wordle/`. Changing a game's
 data collection, ads, or purchases means editing the matching legal page in
@@ -74,6 +86,14 @@ Analytics + Crashlytics **plus `firebase-crashlytics-ndk`**, which neither Flutt
 app has any use for — so no page here may be copied from another. StackO! pointed at
 Kata·Word's page for a while, which would have failed review — Play checks that
 the policy describes the app it is attached to.
+
+**Rekta's page differs from 2048's on backup, which is the reverse claim.** Rekta
+excludes its progress file from Android backup and its page says so; 2048's page
+tells players backup *can* carry their scores. Rekta's page also lists its
+analytics events by name — level start/end with level, grid size, seconds and
+hints — so **adding an event to `rekta/.../Telemetry.java` makes the published
+policy wrong until that page is edited too.** Copying either page onto the other
+would misstate both.
 
 2048 differs again, and in a way that matters more than the SDK list: its
 Analytics events carry **gameplay figures** (run score, highest tile, whether the
@@ -110,7 +130,8 @@ godot --path . --headless --script tools/smoke_test.gd   # the real regression t
 godot --path . --script tools/screenshot.gd -- <dir>     # needs a display
 ```
 
-Native Android project (`2048/`) — Gradle wrapper only, no Flutter, no Godot:
+Native Android projects (`2048/`, `rekta/`) — Gradle wrapper only, no Flutter, no
+Godot. Same commands in either:
 
 ```bash
 echo "sdk.dir=$HOME/Library/Android/sdk" > local.properties  # once per machine
@@ -122,6 +143,13 @@ echo "sdk.dir=$HOME/Library/Android/sdk" > local.properties  # once per machine
 Wrapper is Gradle **9.1.0**, AGP 8.13.0, compileSdk 36, minSdk 26, Java 17 — a
 fourth toolchain, unrelated to the two above. `local.properties` is gitignored, so
 a fresh clone cannot configure until it exists.
+
+Rekta carries Firebase Analytics + Crashlytics, same shape as 2048 — plugins from
+the same version catalog, `google-services.json` committed (private repo), and one
+`Telemetry.java` holding every call. Its debug variant has **no
+`applicationIdSuffix`** for the same reason 2048's does not: the file carries a
+client for the release id only, and the plugin fails the build on a variant it
+cannot match.
 
 Website (`artivy/`): no build step, no deps. Open `index.html` directly, or
 `python3 -m http.server`. Pushing to `main` deploys the whole repo to GitHub
@@ -142,7 +170,7 @@ wrapper from `android_source.zip` into the gitignored `stacko/android/` tree, so
 version belongs to the engine and any edit is erased by the next
 `--install-android-build-template`.
 
-## Release signing (all four games)
+## Release signing (all five games)
 
 Each app has its own upload key in `~/key-store/<game>-upload.jks`, outside every
 repo, and **no password is stored on disk**. Passwords live in the macOS login
@@ -165,6 +193,9 @@ Keychain and are read at build time:
   **debug-keystore fallback** in `signingConfigs["release"]`: that produced an
   installable release APK, and a bundle Play would accept once and then never let
   you update, since the upload certificate can't change.
+- **rekta** — identical to 2048, with `rekta-upload-keystore` as the service name
+  and its own `./tools/upload_key.sh`, which also prints the SHA-1/SHA-256 the
+  Firebase console wants.
 
 Store one copy of each password off this machine as well. The Keychain dies with
 the laptop, and a `.jks` without its password is as useless as the password
@@ -178,11 +209,16 @@ StackO! is a third stack again. Never import or copy-reference across them; port
 the idea, not the file.
 
 - Android ids: `id.artivy.wordle`, `id.artivy.pawdoku`, `id.artivy.stacko`,
-  `id.artivy.puzzle2048`. Publisher "Artivy".
-- **2048 is outside this shared shape.** It is native Java, has no coins, no
-  store, no themes, no daily challenge, no hidden long-press, and no rewarded ad —
-  only a banner and an interstitial. Do not go looking for the patterns below in
-  it; `2048/CLAUDE.md` describes what it actually has.
+  `id.artivy.puzzle2048`, `id.artivy.rekta`. Publisher "Artivy".
+- **2048 and Rekta are outside this shared shape.** Both are native Java with no
+  coins, no store, no themes, no daily challenge and no rewarded ad — only a banner
+  and an interstitial. Do not go looking for the patterns below in them;
+  `2048/CLAUDE.md` and `rekta/CLAUDE.md` describe what they actually have.
+  Rekta does keep one shared idea: a hidden **7-second** hold on the Settings
+  version line that turns ads off for screenshots, the same shape as StackO!'s.
+- **Rekta's levels are generated from their number**, not stored — the run is
+  endless and level *n* is the same grid everywhere. Editing its generator
+  renumbers every level for players mid-run; treat that as a content change.
 - Fully offline gameplay. Persistence is `shared_preferences` behind a typed
   wrapper (`GameStorage`/`Prefs` vs `Storage`) in the Flutter pair, and a
   `ConfigFile` behind `Save` (`user://stacko.cfg`) in StackO! — never touch raw
@@ -209,22 +245,27 @@ the idea, not the file.
   `pub-8668013395284480`, since 1.0.1+3), wordle and stacko still carry Google's
   **test** ids — `_testInterstitial` etc. in `wordle/lib/services/ad_service.dart`,
   `USE_TEST_ADS = true` in `stacko/scripts/ads.gd`. See each `PUBLISHING.md`.
-- **UMP consent: all four gather it, only three can reopen it.** Kata·Word, 2048 and
+- **UMP consent: all five gather it, only four can reopen it.** Kata·Word, 2048,
+  Rekta and
   StackO! ask before the first ad request *and* expose an "Ad privacy options" entry
   where Google reports it as required. **Pawdoku gathers consent but offers no way
   back in** (`_gatherConsent` in `lib/services/ad_service.dart`, no Settings entry) —
   Google's EU user consent policy requires that entry point for users who were asked,
   and Pawdoku is the one app already on production. Fix that before any EEA push.
-- **Advertising ID: all three answer "yes" on Play.** `google_mobile_ads` (and the
-  Godot AdMob plugin) add `com.google.android.gms.permission.AD_ID`, Firebase
+- **Advertising ID: every one of them answers "yes" on Play.** `google_mobile_ads`
+  (and the Godot AdMob plugin, and `play-services-ads` in the two native apps) add
+  `com.google.android.gms.permission.AD_ID`, Firebase
   Analytics adds `android.permission.AD_ID`, and Play refuses to let the question
   disagree with the manifest. Removing the permission only costs personalised ads.
 - Crash/analytics differ, and the privacy pages depend on it: wordle has
-  Crashlytics + Analytics, pawdoku Crashlytics only, **stacko Crashlytics +
-  Analytics + the NDK artifact** (it is a native game, so Java-only crash
-  reporting would record nothing). In stacko the wiring is not a dependency line
-  but `tools/patch_android_firebase.py`, replayed after every
+  Crashlytics + Analytics, pawdoku Crashlytics only, 2048 and rekta Crashlytics +
+  Analytics, **stacko Crashlytics + Analytics + the NDK artifact** (it is a native
+  game, so Java-only crash reporting would record nothing). In stacko the wiring is
+  not a dependency line but `tools/patch_android_firebase.py`, replayed after every
   `--install-android-build-template`.
+  2048 and rekta each keep every Firebase call in a single `Telemetry.java`, and
+  both of their privacy pages enumerate the events by name — which is what makes
+  "edit the page when you add an event" checkable rather than aspirational.
 
 ## Conventions
 
