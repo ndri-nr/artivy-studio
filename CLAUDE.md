@@ -184,6 +184,17 @@ app: local storage rather than SharedPreferences, no Android backup, and for now
 no ads, no analytics and no crash reporting. 2048, Rekta and Kata·Word have that
 section; StackO! needs it before its play page ships.
 
+**Pawdoku's tap model is not the obvious one, and `pawdoku/CLAUDE.md` describes
+it wrongly.** That file says `tap()` cycles empty→cat→blocked→empty. The code in
+`state/game_controller.dart` and `widgets/board_grid.dart` does something else: a
+tap toggles the player's own X, a second tap on the same cell within 200ms
+*summons* a cat, a long press summons directly, and dragging paints X. A summoned
+cat is judged against `puzzle.solution` — **not** against `checkPlacement` — so a
+cell that breaks no rule yet is still wrong, costs a life, and becomes a
+permanent locked cross. The web build was written from that doc line first and
+had to be redone; its `selftest.html` now pins each of those rules so the same
+misreading cannot happen twice.
+
 **Pawdoku's generator is fast only because the solver searches the smallest
 region first.** Proving a board has no *second* solution means exhausting the
 search tree, and that is where the whole cost sits. In region order a 9×9 took
