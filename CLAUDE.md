@@ -111,6 +111,61 @@ player's Google account. Its page says both. It also has **no UMP consent flow**
 which is why its page describes the consent step and the Settings row that reopens
 it.
 
+## The browser builds
+
+Each game is getting a playable web version on the Pages site, at
+`artivy/games/<slug>/play.html` in the repo and `/artivy/<slug>/play.html` once
+the deploy flattens `games/` away. **2048 is the only one built so far.**
+
+These share **no code with the Android repos** and are not ports of them. The
+rules were rewritten in JavaScript from what each game does; the Dart, Java and
+GDScript stay where they are. Nothing in `artivy/` imports from a game repo and
+nothing ever should — the site deploys on its own, and a shared file would tie a
+Play release to a website push.
+
+No framework, no bundler, no `package.json`. Plain ES modules served as-is, which
+is the whole reason this can live in a repo whose deploy is "copy the files".
+Adding a build step here means the site can no longer be checked by opening it.
+
+- `artivy/js/storage.js` — the save wrapper every game uses. Namespaced
+  `artivy.<slug>.*`, and it survives the three things that actually happen:
+  storage that throws (private windows), a full quota, and a corrupt value. When
+  it cannot persist it falls back to memory so the game still runs, and
+  `isPersistent()` is how a page knows to warn the player.
+- `artivy/css/play.css` — the shared page shell. Board sizing, the landscape
+  phone layout, the ad slot.
+- `artivy/games/<slug>/model.js` — the rules, **with no DOM in them**. That is
+  what makes `selftest.html` in the same folder possible: open it and it prints
+  pass/fail lines for the rules that would silently cost a player their game.
+  Run it after touching a model.
+
+**The board's size is a declared constant, not a measurement.** `--play-chrome`
+in `play.css` is the height of everything that is not the board, and the board is
+`min(max, 100%, 100dvh - var(--play-chrome))`. An earlier version measured the
+layout from JavaScript and set the size from that; it was wrong on load, because
+the web font had not swapped in yet, and wrong again on resize, because it read a
+viewport that was still moving. JavaScript now only reads the board's final size
+through a `ResizeObserver` to place tiles. Do not reintroduce the measuring
+version — a constant that is slightly generous costs a slightly smaller board,
+which is a far cheaper way to be wrong.
+
+`dvh`, never `vh`: mobile browser chrome slides away as the page scrolls, and
+`vh` measures the taller state, so a `vh`-sized board is clipped for exactly as
+long as the toolbar is showing.
+
+A play page must **not** load `js/main.js`. That is the home page's Three.js
+particle field — a continuous repaint competing with the game for frames.
+
+Ads: none yet, on any of them. `play.css` reserves the slot's height so switching
+AdSense on later cannot shove the board down the page. Whatever goes in that slot
+stays clear of the board — a missed swipe landing on an ad is an accidental
+click, and enough of those close a publisher account.
+
+Each game's privacy page has to describe the browser build separately from the
+app: local storage rather than SharedPreferences, no Android backup, and for now
+no ads, no analytics and no crash reporting. 2048's page has that section; the
+other four need it before their play pages ship.
+
 ## Commands
 
 Flutter projects (`wordle/`, `pawdoku/`) — run from inside the project dir:
