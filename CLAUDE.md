@@ -115,8 +115,7 @@ it.
 
 Each game is getting a playable web version on the Pages site, at
 `artivy/games/<slug>/play.html` in the repo and `/artivy/<slug>/play.html` once
-the deploy flattens `games/` away. **2048, Rekta, Kata·Word and Pawdoku are
-built; StackO! is the one still to do.**
+the deploy flattens `games/` away. **All five are built.**
 
 These share **no code with the Android repos** and are not ports of them. The
 rules were rewritten in JavaScript from what each game does; the Dart, Java and
@@ -196,7 +195,16 @@ reproducing `java.util.Random` bit for bit, which buys a player nothing.
 Each game's privacy page has to describe the browser build separately from the
 app: local storage rather than SharedPreferences, no Android backup, and for now
 no ads, no analytics and no crash reporting. 2048, Rekta and Kata·Word have that
-section; StackO! needs it before its play page ships.
+section, and so does StackO!.
+
+**StackO! is the only one with a render loop, and it is a canvas.** The Android
+build is a real 3D scene in Godot; here the tower is flat quads under an
+isometric projection, which is all that camera ever showed — the angle never
+moves and nothing rotates, so three faces a block is the whole of it. No WebGL
+and no 3D library. Two things in `play.js` are load-bearing: the fixed timestep,
+without which the slab travels twice as fast on a 120Hz phone as on a 60Hz
+laptop, and the ceiling on catch-up, without which returning to a backgrounded
+tab runs thousands of steps at once and the slab teleports.
 
 **Pawdoku's tap model is not the obvious one, and `pawdoku/CLAUDE.md` describes
 it wrongly.** That file says `tap()` cycles empty→cat→blocked→empty. The code in
