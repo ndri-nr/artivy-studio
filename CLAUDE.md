@@ -80,6 +80,14 @@ data collection, ads, or purchases means editing the matching legal page in
 `artivy/` too, or the store listing goes stale. Renaming/moving a page in
 `artivy/` breaks a live in-app link.
 
+**Those URLs have no `games/` in them, and the source files do.** In the repo the
+pages live at `artivy/games/<slug>/`; the Pages workflow copies `games/*` back to
+the site root before uploading, so the published paths stay
+`/artivy/<slug>/*.html` — exactly what five shipped binaries ask for. Edit the
+page under `artivy/games/`, never assume the repo path is the URL path, and do
+not delete the flatten step in `artivy/.github/workflows/static.yml`: it is the
+only thing keeping those links alive.
+
 The games' policies are **not interchangeable**: the Flutter pair ships
 Firebase Crashlytics and Kata·Word also ships Analytics, while StackO! ships
 Analytics + Crashlytics **plus `firebase-crashlytics-ndk`**, which neither Flutter
@@ -154,6 +162,16 @@ cannot match.
 Website (`artivy/`): no build step, no deps. Open `index.html` directly, or
 `python3 -m http.server`. Pushing to `main` deploys the whole repo to GitHub
 Pages via `.github/workflows/static.yml`.
+
+The home page and the game pages link each other as if the games sat at the site
+root, because after the workflow's flatten step they do. Served straight from the
+repo those links 404. To preview the real layout, flatten into a scratch copy:
+
+```bash
+rm -rf /tmp/artivy-preview && cp -R artivy /tmp/artivy-preview \
+  && (cd /tmp/artivy-preview && cp -R games/. . && rm -rf games .git) \
+  && python3 -m http.server -d /tmp/artivy-preview
+```
 
 Toolchain here is Homebrew Flutter (`/opt/homebrew/bin/flutter`) and Homebrew
 Godot (`/opt/homebrew/bin/godot`). Android builds need **JDK 21**

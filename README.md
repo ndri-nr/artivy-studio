@@ -47,8 +47,11 @@ policy and terms **by URL** at runtime:
 
 A submodule pointer cannot enforce that: the live site is whatever `artivy/main`
 last deployed, not whatever commit a pointer names. What keeps it honest is
-remembering to edit the matching page in `artivy/` when a game changes what it
-collects — which is written down in `CLAUDE.md`, where it belongs.
+remembering to edit the matching page in `artivy/games/<slug>/` when a game
+changes what it collects — which is written down in `CLAUDE.md`, where it
+belongs. Note the `games/` in the repo path and its absence from the URL: the
+Pages workflow flattens that directory to the site root on deploy, so the links
+baked into shipped apps keep resolving.
 
 If a shared Dart package or a CI job that builds all three games ever appears, that
 is the moment to revisit this — as a real monorepo rather than submodules.
