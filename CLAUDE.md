@@ -158,6 +158,16 @@ which is a far cheaper way to be wrong.
 `vh` measures the taller state, so a `vh`-sized board is clipped for exactly as
 long as the toolbar is showing.
 
+**A play page and its script are cached separately, so bump `?v=` when a change
+spans both.** Every play page loads its own CSS and JS as `play.js?v=N`. GitHub
+Pages serves `cache-control: max-age=600`, which means a browser can hold a new
+`play.html` beside a `play.js` from ten minutes ago — and when the change removed
+a button the old script still reached for at boot, the module threw and the board
+came up blank. Safari holds that pair longest. The version makes them
+inseparable: whichever page a browser has, it asks for the assets that shipped
+with it. Bump it on any change that alters what the JS expects the HTML to
+contain.
+
 A play page must **not** load `js/main.js`. That is the home page's Three.js
 particle field — a continuous repaint competing with the game for frames.
 
