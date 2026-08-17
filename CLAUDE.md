@@ -170,10 +170,37 @@ contain.
 A play page must **not** load `js/main.js`. That is the home page's Three.js
 particle field — a continuous repaint competing with the game for frames.
 
-Ads: none yet, on any of them. `play.css` reserves the slot's height so switching
-AdSense on later cannot shove the board down the page. Whatever goes in that slot
-stays clear of the board — a missed swipe landing on an ad is an accidental
-click, and enough of those close a publisher account.
+**AdSense is wired, one unit per game, and the unit's size is load-bearing.** Each
+game has its own `data-ad-slot`, used on both its `play.html` and its `index.html`,
+so reports stay per-game — a shared unit merges those figures and they cannot be
+split afterwards.
+
+On a play page the slot is a **fixed 100×100%**, not the `data-ad-format="auto"`
+AdSense hands you. Auto lets Google choose the height at runtime, and this layout
+cannot survive that: the board is `100dvh - var(--play-chrome)`, that constant is
+declared by hand, and it has exactly 100px budgeted for the advert. One arriving
+280px tall pushes the page off the bottom of the screen with nothing in the layout
+able to see it coming. About pages use `auto` freely — nothing there is sized from
+a constant.
+
+**A hidden slot must not carry an `<ins>` at all.** `adsbygoogle.push({})` does not
+fill the slot nearest the call; it fills the next uninitialised `<ins>` in document
+order. Side rails written into the markup and merely hidden by CSS therefore stole
+the banner's push, failed on `availableWidth=0`, and left the banner unfilled. The
+rails build their `<ins>` from script only when the media query matches, and the
+banner's push is guarded on `offsetWidth > 0` because landscape phones hide it.
+
+Wide screens carry two 160×600 rails as well, absolutely positioned against a
+wrapper — never flex items beside the stage, because the board's `100%` resolves
+against the stage and making it content-sized would move the number the whole
+sizing model rests on. 1024px on a play page, 1280px on an about page.
+
+Privacy and terms pages carry the loader script but **no ad unit**: thin pages are
+what AdSense's low-value content policy is about. Nothing goes within 32px of a
+board — a missed swipe landing on an advert is an accidental click, and enough of
+those close a publisher account. Auto ads must stay **off**: Google would insert
+adverts wherever it liked, including into the height `--play-chrome` claims to
+know.
 
 **The browser builds are the games, not the meta around them.** No coins, no
 store, no trophies, no themes, no hints and no daily challenge — Kata·Word's
@@ -193,9 +220,11 @@ Rekta is the opposite case and for a good reason: matching its levels would mean
 reproducing `java.util.Random` bit for bit, which buys a player nothing.
 
 Each game's privacy page has to describe the browser build separately from the
-app: local storage rather than SharedPreferences, no Android backup, and for now
-no ads, no analytics and no crash reporting. 2048, Rekta and Kata·Word have that
-section, and so does StackO!.
+app: local storage rather than SharedPreferences, no Android backup, no analytics
+and no crash reporting — and **one AdSense banner**, which all five pages now
+spell out: a plain display advert, not rewarded, no interstitial, loaded once and
+never refreshed. Those five sentences are the reason the advert markup and the
+privacy edit have to ship in the same commit, never one after the other.
 
 **StackO! is the only one with a render loop, and it is a canvas.** The Android
 build is a real 3D scene in Godot; here the tower is flat quads under an
