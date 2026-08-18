@@ -418,6 +418,26 @@ the idea, not the file.
   back in** (`_gatherConsent` in `lib/services/ad_service.dart`, no Settings entry) —
   Google's EU user consent policy requires that entry point for users who were asked,
   and Pawdoku is the one app already on production. Fix that before any EEA push.
+- **Play in-app updates: all five, and the flow is IMMEDIATE.** When a newer build
+  is live the store's own full-screen sheet appears; Play owns the UI, the download
+  and the relaunch, so no game draws an update dialog of its own and none has a
+  "restart now" prompt to manage. The Flutter pair go through `in_app_update` (one
+  `_checkForUpdate()` in `main.dart`, scheduled at `Priority.idle` beside the other
+  init); the native pair have `Updates.java` next to `Consent.java`; StackO! gets
+  `tools/android/Updates.java` copied into the generated tree by
+  `tools/patch_android.py`, because the flow has to start from the Android activity
+  and Godot exposes no binding for it.
+  **`check()` belongs in `onCreate`, `resume()` in `onResume`** — the split is the
+  whole design. Offering the sheet from `onResume` re-offers it the instant a player
+  declines and returns, which is a loop with no way out; `resume()` only re-enters a
+  download the player already accepted and that was interrupted.
+  **None of it is visible on a build you can make locally.** A sideload, a debug APK
+  or an emulator gets `ERROR_APP_NOT_OWNED` and the check is a silent no-op, so
+  "nothing happened" is not evidence of a wiring mistake. Play's internal app sharing
+  is the only way to see it before release.
+  Nothing was added to the privacy pages for it: the API reports no player data and
+  runs inside the Play Store app, which every page already covers as the install
+  source.
 - **Advertising ID: every one of them answers "yes" on Play.** `google_mobile_ads`
   (and the Godot AdMob plugin, and `play-services-ads` in the two native apps) add
   `com.google.android.gms.permission.AD_ID`, Firebase
@@ -427,7 +447,7 @@ the idea, not the file.
   Crashlytics + Analytics, pawdoku Crashlytics only, 2048 and rekta Crashlytics +
   Analytics, **stacko Crashlytics + Analytics + the NDK artifact** (it is a native
   game, so Java-only crash reporting would record nothing). In stacko the wiring is
-  not a dependency line but `tools/patch_android_firebase.py`, replayed after every
+  not a dependency line but `tools/patch_android.py`, replayed after every
   `--install-android-build-template`.
   2048 and rekta each keep every Firebase call in a single `Telemetry.java`, and
   both of their privacy pages enumerate the events by name — which is what makes
