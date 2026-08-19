@@ -95,9 +95,14 @@ app has any use for — so no page here may be copied from another. StackO! poin
 Kata·Word's page for a while, which would have failed review — Play checks that
 the policy describes the app it is attached to.
 
-**Rekta's page differs from 2048's on backup, which is the reverse claim.** Rekta
-excludes its progress file from Android backup and its page says so; 2048's page
-tells players backup *can* carry their scores. Rekta's page also lists its
+**Rekta and 2048 both exclude their save file from Android backup, and both pages
+now say so.** Rekta excludes its progress file; 2048 excludes `artivy_2048.xml`
+from cloud-backup *and* device-transfer (`res/xml/backup_rules.xml`,
+`res/xml/data_extraction_rules.xml`), because that one file carries the hidden ads
+switch alongside the scores and a stale switch from a day-old snapshot is the bug
+Pawdoku shipped once. 2048's page described the opposite until 2026-08-19 — it
+promised players backup would carry their scores — so treat a claim here about
+backup as something to check against those two XML files, not as settled. Rekta's page also lists its
 analytics events by name — level start/end with level, grid size, seconds and
 hints — so **adding an event to `rekta/.../Telemetry.java` makes the published
 policy wrong until that page is edited too.** Copying either page onto the other
@@ -105,11 +110,19 @@ would misstate both.
 
 2048 differs again, and in a way that matters more than the SDK list: its
 Analytics events carry **gameplay figures** (run score, highest tile, whether the
-run passed 2048, chosen language) rather than aggregate screen views, and its
-SharedPreferences file rides Android's `allowBackup`, so scores can reach the
-player's Google account. Its page says both. It also has **no UMP consent flow**,
+run passed 2048, chosen language) rather than aggregate screen views. Its page says
+so. It *does* have a UMP consent flow — `Consent.java`, gathered on the splash —
 which is why its page describes the consent step and the Settings row that reopens
 it.
+
+**2048's banner is on its Settings screen, not its board, and its interstitial is
+timed.** `SettingsActivity` owns the app's only `AdView`; `activity_main.xml` has
+none, and putting one back on the board undoes a deliberate choice — a 2048 run is
+long, and a fixed advert under a grid someone stares at for all of it is what makes
+a game feel cheap. The interstitial fires when a new game starts after a game over
+and only if that run lasted 60s (`MIN_RUN_MS_FOR_INTERSTITIAL`), replacing a
+count-based rule that charged a player two twenty-second losses. Rekta has the same
+banner arrangement; the other three do not.
 
 ## The browser builds
 
