@@ -428,9 +428,16 @@ the idea, not the file.
   (`AD_HOLD_SECONDS`). The long holds and the tap-vs-hold suppression are
   load-bearing — do not "fix" them.
 - AdMob unit ids: **pawdoku is live** (real units under publisher
-  `pub-8668013395284480`, since 1.0.1+3), wordle and stacko still carry Google's
-  **test** ids — `_testInterstitial` etc. in `wordle/lib/services/ad_service.dart`,
-  `USE_TEST_ADS = true` in `stacko/scripts/ads.gd`. See each `PUBLISHING.md`.
+  `pub-8668013395284480`, since 1.0.1+3). Kata·Word, StackO!, 2048 and Rekta still
+  carry Google's **test** ids — `_testInterstitial` etc. in
+  `wordle/lib/services/ad_service.dart`, `USE_TEST_ADS = true` in
+  `stacko/scripts/ads.gd`, `res/values/ads.xml` plus the manifest `APPLICATION_ID` in
+  the two native games. See each `PUBLISHING.md`.
+  **That is the intended order, not an oversight** (developer's call, 2026-08-19): the
+  app has to be on a production track before its real units get registered, so the
+  swap happens right after each promotion rather than before it. Closed testing on
+  test ids is the expected state — don't file it as an outstanding bug, and don't
+  swap ids for a game that has not gone production yet.
 - **UMP consent: all five gather it and all five can reopen it.** Every game asks
   before the first ad request and exposes an "Ad privacy options" entry where Google
   reports it as required — the EU user consent policy requires that a user who
