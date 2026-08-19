@@ -8,7 +8,7 @@ cd "$(dirname "$0")"
 # ndri-nr.github.io serves app-ads.txt from the domain root, which is the only
 # place AdMob will look for it — the artivy site is a project page at /artivy/
 # and structurally cannot answer for the root. Its own README explains why.
-repos=(wordle pawdoku stacko 2048 artivy ndri-nr.github.io diorama rekta)
+repos=(wordle pawdoku stacko 2048 artivy ndri-nr.github.io rekta parkjam)
 
 for name in "${repos[@]}"; do
     if [ -d "$name/.git" ]; then
