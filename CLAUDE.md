@@ -21,15 +21,17 @@ pulls — each may hold work in progress.
 | `stacko/`            | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`            |
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
-| `parkeer/`           | **Parkeer!** — Godot 4 parking-jam prototype      | *no remote yet*                        |
+| `parkeer/`           | **Parkeer!** — Godot 4 parking-jam prototype      | `github.com/ndri-nr/parkeer` (unpushed) |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
-`parkeer/` is a **local prototype with no remote**, so `bootstrap.sh` does not
-list it and a fresh machine will not have it. Give it a remote before adding the
-line, or the script fails for every repo after it. It is a fifth toolchain in
-name only — Godot 4.7 like StackO!, but its own project with no menu, save, ads
-or signing yet. `parkeer/CLAUDE.md` says what is deliberately missing.
+`parkeer/` has its remote set to `github.com/ndri-nr/parkeer` but **nothing has
+been pushed and `git ls-remote` cannot reach it**, so `bootstrap.sh` still does
+not list it: a line there for a repo that does not answer fails the script for
+every repo after it. Add the line once the first push lands, not before. It is a
+fifth toolchain in name only — Godot 4.7 like StackO!, but its own project with
+no menu, save, ads or signing yet. `parkeer/CLAUDE.md` says what is deliberately
+missing.
 
 **Pawdoku is on Play production; Kata·Word and StackO! are in closed testing**
 (as of 2026-08-15). All three need a version bump before any new release build.
