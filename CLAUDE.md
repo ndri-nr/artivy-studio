@@ -431,13 +431,15 @@ the idea, not the file.
   `pub-8668013395284480`, since 1.0.1+3), wordle and stacko still carry Google's
   **test** ids — `_testInterstitial` etc. in `wordle/lib/services/ad_service.dart`,
   `USE_TEST_ADS = true` in `stacko/scripts/ads.gd`. See each `PUBLISHING.md`.
-- **UMP consent: all five gather it, only four can reopen it.** Kata·Word, 2048,
-  Rekta and
-  StackO! ask before the first ad request *and* expose an "Ad privacy options" entry
-  where Google reports it as required. **Pawdoku gathers consent but offers no way
-  back in** (`_gatherConsent` in `lib/services/ad_service.dart`, no Settings entry) —
-  Google's EU user consent policy requires that entry point for users who were asked,
-  and Pawdoku is the one app already on production. Fix that before any EEA push.
+- **UMP consent: all five gather it and all five can reopen it.** Every game asks
+  before the first ad request and exposes an "Ad privacy options" entry where Google
+  reports it as required — the EU user consent policy requires that a user who
+  answered can change their mind.
+  **Pawdoku's entry is not in Settings**, which is why grepping its settings screen
+  finds nothing and this file claimed for a while that it had none: the link sits in
+  `_legalLinks` in `lib/screens/home_screen.dart`, next to Privacy Policy and Terms,
+  gated on `AdService.privacyOptionsRequired()`. The other four put it in Settings.
+  Check the service, not the settings screen, before concluding a game is missing it.
 - **Play in-app updates: all five, and the flow is IMMEDIATE.** When a newer build
   is live the store's own full-screen sheet appears; Play owns the UI, the download
   and the relaunch, so no game draws an update dialog of its own and none has a
