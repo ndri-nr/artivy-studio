@@ -21,19 +21,13 @@ pulls — each may hold work in progress.
 | `stacko/`            | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`            |
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
-| `parkeer/`           | **Parkeer!** — Godot 4 parking-jam prototype      | `github.com/ndri-nr/parkeer`           |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
-`parkeer/` is pushed and `bootstrap.sh` clones it. It listed `parkjam` for two
-days — the name the directory had before the game was called Parkeer! — which
-would have failed a fresh machine at that line and taken every repo after it
-down with it, since the script is `set -e`. A name in that list has to be a repo
-that answers.
-
-Parkeer! is a fifth toolchain in name only — Godot 4.7 like StackO!, but its own
-project with no menu, save, ads or signing yet. `parkeer/CLAUDE.md` says what is
-deliberately missing.
+Every name in `bootstrap.sh`'s list has to be a repo that answers. The list
+carried a directory name no remote ever had for two days once: the script is
+`set -e`, so that line fails a fresh machine and takes every repo after it down
+with it.
 
 **Pawdoku is on Play production; Kata·Word and StackO! are in closed testing**
 (as of 2026-08-15). All three need a version bump before any new release build.
