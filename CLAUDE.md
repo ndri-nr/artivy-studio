@@ -430,7 +430,7 @@ wrapper from `android_source.zip` into the gitignored `stacko/android/` tree, so
 version belongs to the engine and any edit is erased by the next
 `--install-android-build-template`.
 
-## Release signing (all five games)
+## Release signing (all six games)
 
 Each app has its own upload key in `~/key-store/<game>-upload.jks`, outside every
 repo, and **no password is stored on disk**. Passwords live in the macOS login
@@ -456,6 +456,10 @@ Keychain and are read at build time:
 - **rekta** — identical to 2048, with `rekta-upload-keystore` as the service name
   and its own `./tools/upload_key.sh`, which also prints the SHA-1/SHA-256 the
   Firebase console wants.
+- **pourfect** — Flutter layout (`android/key.properties`, alias and path only) with
+  2048's script: `./tools/upload_key.sh` creates `~/key-store/pourfect-upload.jks`,
+  stores the password under `pourfect-upload-keystore`, and prints the fingerprints.
+  It too replaced a debug-key release config, the one `flutter create` writes.
 
 Store one copy of each password off this machine as well. The Keychain dies with
 the laptop, and a `.jks` without its password is as useless as the password
@@ -555,6 +559,25 @@ the idea, not the file.
   2048 and rekta each keep every Firebase call in a single `Telemetry.java`, and
   both of their privacy pages enumerate the events by name — which is what makes
   "edit the page when you add an event" checkable rather than aspirational.
+  **pourfect has Crashlytics + Analytics** (project `pourfect-puzzle`, added
+  2026-08-23) and follows the native pair's shape rather than wordle's two
+  services: one `lib/services/telemetry.dart` holds every Firebase call, and its
+  three events — `level_start`, `level_finish`, `level_abandon` — are what its
+  privacy page promises, so adding a fourth makes that page wrong.
+- **A Flutter release build runs R8 whether or not `build.gradle.kts` mentions it,
+  and two Firebase/Ads traps hide behind that.** Both cost a startup crash or a
+  silent dead SDK, and both are in every game's `proguard-rules.pro`:
+  `-keep class * extends androidx.room.RoomDatabase` (WorkManager arrives through
+  the Ads SDK, is built on Room, and Room finds its generated `_Impl` by name), and
+  a keep for `com.google.firebase.components.ComponentRegistrar` implementors
+  **including their no-argument constructor** — R8's full mode drops that
+  constructor, Firebase instantiates each registrar reflectively from a manifest
+  meta-data string, and Crashlytics then never starts. The second failure prints
+  one `ComponentDiscovery` line in logcat and nothing else: no crash, no reports,
+  and a console that simply stays empty.
+  pourfect hit both on its first release build, on 2026-08-23. **wordle survives
+  the second only because it keeps `com.google.firebase.**` wholesale, and pawdoku
+  has neither keep — check its release build before trusting its crash reports.**
 
 ## Conventions
 
