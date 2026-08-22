@@ -106,14 +106,18 @@ app has any use for — so no page here may be copied from another. StackO! poin
 Kata·Word's page for a while, which would have failed review — Play checks that
 the policy describes the app it is attached to.
 
-**Rekta and 2048 both exclude their save file from Android backup, and both pages
-now say so.** Rekta excludes its progress file; 2048 excludes `artivy_2048.xml`
-from cloud-backup *and* device-transfer (`res/xml/backup_rules.xml`,
-`res/xml/data_extraction_rules.xml`), because that one file carries the hidden ads
-switch alongside the scores and a stale switch from a day-old snapshot is the bug
-Pawdoku shipped once. 2048's page described the opposite until 2026-08-19 — it
-promised players backup would carry their scores — so treat a claim here about
-backup as something to check against those two XML files, not as settled. Rekta's page also lists its
+**All five games have Android Auto Backup on again, as of 2026-08-22, and no
+game has a `backup_rules.xml` any more.** They were excluded for two days
+because one save file carries the hidden ads switch alongside the progress, and a
+switch flipped after the last cloud snapshot — up to 24h old — comes back flipped
+the other way on the next install; that is the bug Pawdoku shipped once and it is
+still the price of this. The developer's call was that progress following a player
+to a new phone is worth more. So: the Flutter pair and the native pair declare
+`android:allowBackup="true"` with no rules files, and StackO! needs *both*
+`user_data_backup/allow=true` in `export_presets.cfg` and the `src/main` rewrite
+that `stacko/tools/patch_android.py` replays, since Godot hardcodes `false` there.
+Every claim about backup in these repos has now been reversed twice — check the
+manifest, never a sentence. Rekta's page also lists its
 analytics events by name — level start/end with level, grid size, seconds and
 hints — so **adding an event to `rekta/.../Telemetry.java` makes the published
 policy wrong until that page is edited too.** Copying either page onto the other
