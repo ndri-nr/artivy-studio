@@ -11,6 +11,9 @@ themselves.
 | `wordle/`            | **Kata·Word** — Wordle-style word game        | Flutter · Riverpod   | `github.com/ndri-nr/wordle`            |
 | `pawdoku/`           | **Pawdoku** — cat-themed logic puzzle         | Flutter · Provider   | `github.com/ndri-nr/pawdoku`           |
 | `stacko/`            | **StackO!** — isometric neon block stacker    | Godot 4.7 · GDScript | `github.com/ndri-nr/stacko`            |
+| `2048/`              | **2048** — sliding-tile puzzle                | native Android (Java)| `github.com/ndri-nr/2048`              |
+| `rekta/`             | **Rekta** — Shikaku puzzle                    | native Android (Java)| `github.com/ndri-nr/rekta`             |
+| `pourfect/`          | **PourFect!** — water-sort puzzle             | Flutter              | `github.com/ndri-nr/pourfect`          |
 | `artivy/`            | Publisher site incl. every game's legal pages | static HTML · Pages  | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob   | one text file        | `github.com/ndri-nr/ndri-nr.github.io` |
 
@@ -44,6 +47,9 @@ policy and terms **by URL** at runtime:
 - `wordle/lib/models/game_config.dart` → `.../artivy/kata_word/*.html`
 - `pawdoku/lib/screens/home_screen.dart` → `.../artivy/pawdoku/*.html`
 - `stacko/scripts/menu_ui.gd` → `.../artivy/stacko/*.html`
+- `2048/app/src/main/res/values/strings.xml` → `.../artivy/2048/*.html`
+- `rekta/app/src/main/res/values/strings.xml` → `.../artivy/rekta/*.html`
+- `pourfect/lib/screens/settings_screen.dart` → `.../artivy/pourfect/*.html`
 
 A submodule pointer cannot enforce that: the live site is whatever `artivy/main`
 last deployed, not whatever commit a pointer names. What keeps it honest is
@@ -53,8 +59,8 @@ belongs. Note the `games/` in the repo path and its absence from the URL: the
 Pages workflow flattens that directory to the site root on deploy, so the links
 baked into shipped apps keep resolving.
 
-If a shared Dart package or a CI job that builds all three games ever appears, that
-is the moment to revisit this — as a real monorepo rather than submodules.
+If a shared Dart package or a CI job that builds every game ever appears, that is
+the moment to revisit this — as a real monorepo rather than submodules.
 
 ## Where the details live
 

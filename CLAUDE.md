@@ -21,6 +21,7 @@ pulls — each may hold work in progress.
 | `stacko/`            | **StackO!** — Godot 4.7 isometric block stacker | `github.com/ndri-nr/stacko`            |
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
+| `pourfect/`          | **PourFect!** — Flutter water-sort puzzle       | `github.com/ndri-nr/pourfect`          |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
@@ -37,8 +38,8 @@ production — a bundle uploaded to closed testing burns that number exactly as 
 production release does. So "has it shipped to production yet" is the wrong
 question; the question is "has anything ever been uploaded for it". Raise
 `version:` in `pubspec.yaml` — name *and* build number — for Pawdoku, Kata·Word
-and StackO!. Only 2048 and Pawkour can rebuild at the same version, and only
-until their first upload.
+and StackO!. Only 2048, Rekta and PourFect! can rebuild at the same
+version, and only until their first upload.
 
 Games sitting in testing are finished games, not stalled ones. Don't read
 anything about what this developer can or cannot finish from which titles are on
@@ -66,6 +67,75 @@ are the authoritative per-project guides (architecture, gotchas, hidden features
 `pubspec.yaml`, widgets or Dart applies there, and its build has its own traps —
 see `stacko/PUBLISHING.md` §2 before attempting an Android export.
 
+## PourFect!
+
+Flutter, water sort, and the newest of the six. `pourfect/CLAUDE.md` is not
+written yet; what follows is the part that is expensive to rediscover.
+
+**The level table is data, not a curve.** `paramsFor` in
+`lib/models/generator.dart` writes levels 1 to 9 out one at a time because the
+shape of each is a decision, then ramps from level 10: two more bottles every
+five levels to twenty-four at level 50, the collector's capacity stepping
+10 → 14 → 18. Editing any of it renumbers every board for players mid-run, the
+same caution Rekta's generator carries.
+
+**Boards are generated and then verified, never shuffled backwards from a solved
+state.** The solver has to exist anyway — hints read its path and the game
+announces dead boards from it — so generation reuses it rather than adding a
+second piece of logic that could disagree.
+
+**The collector's capacity is never a multiple of the bottle capacity.** Ten
+units of a colour cannot be arranged as full bottles of four, so that colour has
+nowhere to end up except the collector. Make it a multiple and the tube becomes
+optional decoration. It is also one-way: nothing pours back out, which is safe
+for the same reason and stops a player undoing their own progress by accident.
+
+**Nine liquid colours, and that is a ceiling rather than a shortage.** The
+palette is Okabe-Ito plus brown and near-white — chosen so the hues survive the
+common forms of colour blindness. A tenth would make one pair identical for some
+players. Wide boards get there by giving each colour *two or four* bottles
+instead, and unevenly: thirteen bottles across eight colours is 2,2,2,2,2,1,1,1.
+Insisting every colour fill the same number forced a whole-number division, and
+that division is what once made the colour count *fall* as boards grew.
+
+Which hue each colour index wears is one of nine orders in `kHueOrders`, picked
+by level. Searched, not eyeballed: no two consecutive levels give the collector
+the same colour, and each order keeps its first six hues clear of the pairs
+people confuse. The search also proved something worth keeping — a conflict-free
+set of six always leaves out vermillion, one of sky/blue and one of yellow/white,
+so on a nine-colour board the collector can only ever wear one of five hues.
+
+**Difficulty is measured, not guessed.** `forcedMoves` counts the positions where
+only one legal move keeps the board winnable, which is what "hard" means here far
+more than solution length. Levels 1 to 5 contain none; level 6 once opened with
+three, which is a cliff, and `LevelParams.maxForced` now lets a level reject the
+cruellest boards of its own shape.
+
+**A dead board is proved, not guessed, and only announced when it shows.**
+`adviseFor` distinguishes *proved unsolvable* — every reachable position visited
+— from *ran out of budget*, and only the proof ends a level. Even then the game
+waits until the player can see why: no legal move at all, or a reachable space of
+at most two dozen positions. A board that is dead but still wide open says
+nothing, because a level that looks playable being declared over reads as the
+game breaking.
+
+**Ads: nothing before level 6, and every rewarded ad is opt-in.** Undo and the
+extra bottle both open a dialog naming the reward before any video plays —
+AdMob's rewarded policy requires the player to agree, and a labelled button is
+not agreement. `earnReward` answers *true* when no ad was loaded: a brand-new app
+serves no fill for days, and a player who taps for a bottle and gets neither an
+ad nor a bottle has been punished for Google's fill rate.
+
+**The extra bottle is on the board from level 7 and padlocked from level 10.**
+Two different questions: being *there* is what keeps the board's shape steady
+(handing it over mid-level reflowed every row), while being *padlocked* is what
+asks for something.
+
+**The saved game is checked for shape, not for a version number.** A snapshot
+whose tube count or capacities no longer match what the current rules produce is
+discarded. Level 7 gained an eighth bottle once and the phone kept showing seven,
+because the restore path loaded a snapshot straight over the fresh board.
+
 ## The one cross-repo coupling
 
 The apps' in-app Privacy/Terms links are hard-coded URLs into the **`artivy/`
@@ -77,6 +147,8 @@ Pages site**:
 
 - `2048/app/src/main/res/values/strings.xml` (`privacy_policy_url`/`terms_url`) →
   `.../artivy/2048/*.html`, opened from its Settings panel.
+- `pourfect/lib/screens/settings_screen.dart` (`privacyUrl`/`termsUrl`) →
+  `.../artivy/pourfect/*.html`, opened from its Settings screen.
 - `rekta/app/src/main/res/values/strings.xml` (same two keys) →
   `.../artivy/rekta/*.html`, also from its Settings panel.
 
@@ -396,7 +468,7 @@ usually transfers — but they are **separate codebases with different stacks**,
 StackO! is a third stack again. Never import or copy-reference across them; port
 the idea, not the file.
 
-- Android ids: `id.artivy.wordle`, `id.artivy.pawdoku`, `id.artivy.stacko`,
+- Android ids: `id.artivy.pourfect`, `id.artivy.wordle`, `id.artivy.pawdoku`, `id.artivy.stacko`,
   `id.artivy.puzzle2048`, `id.artivy.rekta`. Publisher "Artivy".
 - **2048 and Rekta are outside this shared shape.** Both are native Java with no
   coins, no store, no themes, no daily challenge and no rewarded ad — only a banner
