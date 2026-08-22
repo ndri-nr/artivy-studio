@@ -575,9 +575,13 @@ the idea, not the file.
   meta-data string, and Crashlytics then never starts. The second failure prints
   one `ComponentDiscovery` line in logcat and nothing else: no crash, no reports,
   and a console that simply stays empty.
-  pourfect hit both on its first release build, on 2026-08-23. **wordle survives
-  the second only because it keeps `com.google.firebase.**` wholesale, and pawdoku
-  has neither keep — check its release build before trusting its crash reports.**
+  pourfect hit both on its first release build, on 2026-08-23. wordle keeps
+  `com.google.firebase.**` wholesale, which covers the second by accident.
+  **pawdoku carries neither keep and was tested on a release install anyway — its
+  Crashlytics reports arrive.** So the registrar trap is not universal: it depends
+  on which firebase-common and R8 a build resolves, which makes it exactly the
+  kind of thing to keep a rule for rather than reason about. Do not delete the
+  keep from pourfect because pawdoku manages without it.
 
 ## Conventions
 
