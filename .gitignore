@@ -11,4 +11,9 @@
 /rekta/
 /pourfect/
 
+# Release artifacts, collected here by hand after every build so there is one
+# place to look instead of six build/ trees. Never tracked: they are large,
+# regenerable, and signed — a keystore-signed binary has no business in a repo.
+/builds/
+
 .DS_Store

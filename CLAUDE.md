@@ -353,6 +353,28 @@ index, a legal page up to its own game. The old version sent a player wherever
 they happened to arrive from, which for a policy link opened out of an app's
 Settings screen was nowhere at all.
 
+## Where builds go
+
+`builds/` at the workspace root holds every release artifact from every game,
+named `<game>-<versionName>+<versionCode>.<ext>` — `pawdoku-1.0.6+9.aab`. It is
+gitignored, and deliberately: the files are large, regenerable, and signed with a
+real upload key.
+
+Copy the artifact there **as part of building it**, not later. Six `build/` trees
+all produce a file called `app-release.aab`, so two of them side by side are
+indistinguishable, and `build/` is the first thing deleted when this laptop runs
+short of disk — which it does. The name carries the version because a bundle's
+versionCode is burned the moment it is uploaded to any Play track, so "which
+build was that" is a question with real consequences.
+
+```bash
+cp <project>/build/app/outputs/bundle/release/app-release.aab \
+   builds/<game>-<versionName>+<versionCode>.aab
+```
+
+Godot exports and native Gradle builds land elsewhere in their own trees; the
+destination is the same.
+
 ## Commands
 
 Flutter projects (`wordle/`, `pawdoku/`) — run from inside the project dir:
