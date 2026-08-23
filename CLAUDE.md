@@ -360,20 +360,27 @@ named `<game>-<versionName>+<versionCode>.<ext>` — `pawdoku-1.0.6+9.aab`. It i
 gitignored, and deliberately: the files are large, regenerable, and signed with a
 real upload key.
 
-Copy the artifact there **as part of building it**, not later. Six `build/` trees
+**Move** the artifact there as part of building it, never copy. Six `build/` trees
 all produce a file called `app-release.aab`, so two of them side by side are
-indistinguishable, and `build/` is the first thing deleted when this laptop runs
-short of disk — which it does. The name carries the version because a bundle's
-versionCode is burned the moment it is uploaded to any Play track, so "which
-build was that" is a question with real consequences.
+indistinguishable, and a copy left behind is a second answer to "which build was
+that" — a question with real consequences, since a versionCode is burned the
+moment it reaches any Play track. The name carries the version so the filename
+answers it.
 
 ```bash
-cp <project>/build/app/outputs/bundle/release/app-release.aab \
+mv <project>/build/app/outputs/bundle/release/app-release.aab \
    builds/<game>-<versionName>+<versionCode>.aab
 ```
 
 Godot exports and native Gradle builds land elsewhere in their own trees; the
 destination is the same.
+
+**`stacko/build/store/` is not build output.** It holds the Play listing assets —
+feature graphic, 512 icon, tablet screenshots — inside a gitignored directory,
+with a `.gdignore` beside it so Godot does not import 7MB of PNGs into the export.
+StackO! is the only game that keeps them there; the other five track theirs in
+git. So `rm -rf stacko/build` deletes real work: clear the artifacts by name in
+that repo, never the tree.
 
 ## Commands
 
