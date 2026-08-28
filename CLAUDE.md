@@ -136,6 +136,24 @@ whose tube count or capacities no longer match what the current rules produce is
 discarded. Level 7 gained an eighth bottle once and the phone kept showing seven,
 because the restore path loaded a snapshot straight over the fresh board.
 
+## Edge-to-edge, and who has to ask for the insets
+
+Android 15 draws every app behind the system bars, so a phone on three-button
+navigation puts a 48dp bar over whatever sits at the foot of a screen. Checked
+across all six on 2026-08-28, and the answer differs per stack:
+
+- **Flutter** (pawdoku, wordle, pourfect): every `Scaffold` body needs a
+  `SafeArea`, and a `showModalBottomSheet` child needs its own
+  `SafeArea(top: false)` — the sheet is not inside the body's.
+- **Native** (2048, rekta): each activity pads its layout root from
+  `WindowInsetsCompat`. A `Panel` is a `Dialog` — **its own window** — so that
+  padding never reaches it and `Panel` applies the insets itself, on top of the
+  gap the layout asks for. A hand-guessed bottom padding "about the height of the
+  bar" is what this replaced.
+- **StackO!**: nothing to do. It exports with `screen/immersive_mode=true` so the
+  bar is hidden, and `scripts/safe_area.gd` takes `max(reported inset, floor)`,
+  which is already right if immersive ever fails.
+
 ## The one cross-repo coupling
 
 The apps' in-app Privacy/Terms links are hard-coded URLs into the **`artivy/`
