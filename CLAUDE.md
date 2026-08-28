@@ -572,12 +572,12 @@ the idea, not the file.
   `_legalLinks` in `lib/screens/home_screen.dart`, next to Privacy Policy and Terms,
   gated on `AdService.privacyOptionsRequired()`. The other four put it in Settings.
   Check the service, not the settings screen, before concluding a game is missing it.
-- **Play in-app updates: all five, and the flow is IMMEDIATE.** When a newer build
+- **Play in-app updates: all six, and the flow is IMMEDIATE.** When a newer build
   is live the store's own full-screen sheet appears; Play owns the UI, the download
   and the relaunch, so no game draws an update dialog of its own and none has a
-  "restart now" prompt to manage. The Flutter pair go through `in_app_update` (one
+  "restart now" prompt to manage. The Flutter trio go through `in_app_update` (one
   `_checkForUpdate()` in `main.dart`, scheduled at `Priority.idle` beside the other
-  init); the native pair have `Updates.java` next to `Consent.java`; StackO! gets
+  init) — PourFect! was the one without it until 2026-08-28; the native pair have `Updates.java` next to `Consent.java`; StackO! gets
   `tools/android/Updates.java` copied into the generated tree by
   `tools/patch_android.py`, because the flow has to start from the Android activity
   and Godot exposes no binding for it.
