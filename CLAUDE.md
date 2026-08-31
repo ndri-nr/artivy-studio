@@ -572,19 +572,29 @@ the idea, not the file.
   `_legalLinks` in `lib/screens/home_screen.dart`, next to Privacy Policy and Terms,
   gated on `AdService.privacyOptionsRequired()`. The other four put it in Settings.
   Check the service, not the settings screen, before concluding a game is missing it.
-- **Play in-app updates: all six, and the flow is IMMEDIATE.** When a newer build
-  is live the store's own full-screen sheet appears; Play owns the UI, the download
-  and the relaunch, so no game draws an update dialog of its own and none has a
-  "restart now" prompt to manage. The Flutter trio go through `in_app_update` (one
-  `_checkForUpdate()` in `main.dart`, scheduled at `Priority.idle` beside the other
-  init) — PourFect! was the one without it until 2026-08-28; the native pair have `Updates.java` next to `Consent.java`; StackO! gets
+- **Play in-app updates: all six, and the flow is FLEXIBLE** (it was IMMEDIATE
+  until 2026-09-01). Play shows a small sheet the player can dismiss and the
+  download runs in the background with the game still playable; immediate was a
+  full-screen sheet with no way out of it. Play still owns every pixel — no game
+  draws an update dialog of its own. The Flutter trio go through `in_app_update`
+  (one `_checkForUpdate()` in `main.dart`, scheduled at `Priority.idle` beside the
+  other init) — PourFect! was the one without it until 2026-08-28; the native pair
+  have `Updates.java` next to `Consent.java`; StackO! gets
   `tools/android/Updates.java` copied into the generated tree by
   `tools/patch_android.py`, because the flow has to start from the Android activity
   and Godot exposes no binding for it.
+  **What flexible normally costs — a snackbar, an install listener, a restart
+  prompt — is avoided by never installing mid-session.** A finished download just
+  sits there; the next launch sees `installStatus == downloaded` (the native pair
+  also check it in `onResume`) and completes the install then, so Play's restart
+  lands between sessions rather than in the middle of a puzzle. Completing the
+  instant the download finishes is what would need all that UI, and it is the one
+  thing not to add back.
   **`check()` belongs in `onCreate`, `resume()` in `onResume`** — the split is the
-  whole design. Offering the sheet from `onResume` re-offers it the instant a player
-  declines and returns, which is a loop with no way out; `resume()` only re-enters a
-  download the player already accepted and that was interrupted.
+  whole design, and it survived the switch. Offering the sheet from `onResume`
+  re-offers it the instant a player declines and returns, which is a loop with no
+  way out; `resume()` never offers, it only installs a download the player already
+  accepted.
   **None of it is visible on a build you can make locally.** A sideload, a debug APK
   or an emulator gets `ERROR_APP_NOT_OWNED` and the check is a silent no-op, so
   "nothing happened" is not evidence of a wiring mistake. Play's internal app sharing
@@ -592,6 +602,22 @@ the idea, not the file.
   Nothing was added to the privacy pages for it: the API reports no player data and
   runs inside the Play Store app, which every page already covers as the install
   source.
+- **The three Flutter games pin down AdMob's HSDP shim in their manifests; do not
+  delete those `<activity>` blocks.** `play-services-ads` 25.x pulls
+  `com.google.android.play:hsdp`, whose `HsdpShimActivity` reads
+  `target_package_name` out of its own intent in `onAttachedToWindow` and throws
+  `IllegalStateException` when it is missing. A restored task hands it exactly
+  that, because `TaskPersister` writes an activity's intent to disk **without
+  extras** — so the shim comes back after a reboot with a bare intent and kills the
+  app before the game starts. Seen on Pawdoku, Android 11, OnePlus and Huawei.
+  `android:noHistory` finishes the shim the moment it stops so there is nothing to
+  restore; `finishOnTaskLaunch` catches a task already on disk. hsdp 2.1.0 has the
+  identical throw, so there is no version to upgrade to, and `tools:node="remove"`
+  only trades this crash for an `ActivityNotFoundException` inside GMS.
+  **2048 and Rekta have nothing to fix** — they pin `play-services-ads:24.4.0`,
+  which predates hsdp — and **StackO! never will**, because its Godot AdMob plugin
+  uses the Next-Gen SDK (`ads-mobile-sdk`), which does not depend on hsdp at all.
+  Bumping the native pair to ads 25.x brings the crash with it; add the block then.
 - **Advertising ID: every one of them answers "yes" on Play.** `google_mobile_ads`
   (and the Godot AdMob plugin, and `play-services-ads` in the two native apps) add
   `com.google.android.gms.permission.AD_ID`, Firebase
