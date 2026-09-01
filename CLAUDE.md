@@ -371,6 +371,26 @@ index, a legal page up to its own game. The old version sent a player wherever
 they happened to arrive from, which for a policy link opened out of an app's
 Settings screen was nowhere at all.
 
+## Store listing art
+
+Pawdoku and Kata·Word generate theirs from `tool/brand.py` + `store_icon.py`,
+`store_panels.py`, `feature_graphic.py`, into `release/store/`. **Ported between the
+two repos, never imported**: each deploys on its own, and a shared file would tie one
+game's Play release to another's. The approach travels — a board of tiles behind one
+dominant mark — the palette does not.
+
+**One landscape screenshot set covers every slot.** The panels are 1920×1080, which is
+16:9 with a 1080 short side, and that satisfies Play's tablet guidance as well as its
+phone one — so the same files go into the phone, 7-inch and 10-inch slots. Both repos
+had a tablet generator framing phone captures onto 1200×1920 and 1600×2560 canvases;
+both were deleted (2026-09-02). They wrote into gitignored `build/store/`, so their
+output was never kept, and a phone capture on a coloured background is not tablet UI —
+it showed a tablet nothing a phone shot did not.
+
+`release/store/` means "art that was uploaded". Rejected icon and feature-graphic
+variants live in `alternatives/` beside it, and a `CHOSEN` constant in each generator
+records which one ships so a rerun reproduces the uploaded file.
+
 ## Where builds go
 
 `builds/` at the workspace root holds every release artifact from every game,
