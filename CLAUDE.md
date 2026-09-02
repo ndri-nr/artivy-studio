@@ -413,12 +413,12 @@ mv <project>/build/app/outputs/bundle/release/app-release.aab \
 Godot exports and native Gradle builds land elsewhere in their own trees; the
 destination is the same.
 
-**`stacko/build/store/` is not build output.** It holds the Play listing assets —
-feature graphic, 512 icon, tablet screenshots — inside a gitignored directory,
-with a `.gdignore` beside it so Godot does not import 7MB of PNGs into the export.
-StackO! is the only game that keeps them there; the other five track theirs in
-git. So `rm -rf stacko/build` deletes real work: clear the artifacts by name in
-that repo, never the tree.
+**StackO!'s listing art moved out of `build/store/` on 2026-09-02**, so
+`rm -rf stacko/build` is no longer the trap it was. It lives in `stacko/release/store/`
+with the other five games' art, tracked in git. `release/` carries its own `.gdignore`,
+so Godot still does not import megabytes of PNG into the export — that protection was
+never what `build/` provided; being gitignored was, and it meant the art actually
+uploaded to Play was kept nowhere.
 
 ## Commands
 
