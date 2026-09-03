@@ -373,15 +373,35 @@ Settings screen was nowhere at all.
 
 ## Store listing art
 
-Pawdoku and Kata·Word generate theirs from `tool/brand.py` + `store_icon.py`,
-`store_panels.py`, `feature_graphic.py`, into `release/store/`. **Ported between the
-two repos, never imported**: each deploys on its own, and a shared file would tie one
-game's Play release to another's. The approach travels — a board of tiles behind one
-dominant mark — the palette does not.
+All six generate theirs from a `brand.py` holding the palette and primitives plus
+`store_icon.py`, `store_panels.py` and `feature_graphic.py`, one layout each.
+**Ported between the repos, never imported**: each deploys on its own, and a shared
+file would tie one game's Play release to another's. The approach travels, the palette
+does not.
+
+Two directory conventions, and they are not worth unifying — the paths are baked into
+each repo's docs and scripts. Pawdoku, Kata·Word and StackO! use `tool/` or `tools/`
+into `release/store/`; 2048, Rekta and PourFect! use `tools/` into `store/`.
+
+**Each game's mark is its own game's geometry, not an idea of it.** Pawdoku and
+Kata·Word put a board of tiles behind one dominant mark; PourFect!'s `brand.bottle` is
+`Vessel`'s glassware ported to Python, so the icon draws the same open mouth, curved
+shoulder and elliptical liquid surfaces the game does. Its two rejected icons both
+failed the same way — a capsule drawn by guesswork, then the launcher bitmap recoloured,
+which left a straight seam wherever the game draws an ellipse. An icon that contradicts
+its own game's art is worse than a plain one.
 
 **One landscape screenshot set covers every slot.** The panels are 1920×1080, which is
 16:9 with a 1080 short side, and that satisfies Play's tablet guidance as well as its
-phone one — so the same files go into the phone, 7-inch and 10-inch slots. Both repos
+phone one — so the same files go into the phone, 7-inch and 10-inch slots.
+
+**PourFect!'s captures come from a golden harness, not a phone.**
+`pourfect/tools/capture_test.dart` pumps the real `GameScreen` at a chosen level under
+`flutter test --update-goldens`, which is the only way to photograph a pour mid-air. The
+phone alternative means driving a real save past a test ad banner, and the web build
+stops at the age gate. It lives outside `test/` deliberately: without `--update-goldens`
+a golden *compares*, so a capture script in the suite fails the day a font moves a pixel.
+See `pourfect/CLAUDE.md` for the three things in it that are load-bearing. Both repos
 had a tablet generator framing phone captures onto 1200×1920 and 1600×2560 canvases;
 both were deleted (2026-09-02). They wrote into gitignored `build/store/`, so their
 output was never kept, and a phone capture on a coloured background is not tablet UI —
