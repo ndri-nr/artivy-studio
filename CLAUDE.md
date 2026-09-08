@@ -144,6 +144,46 @@ whose tube count or capacities no longer match what the current rules produce is
 discarded. Level 7 gained an eighth bottle once and the phone kept showing seven,
 because the restore path loaded a snapshot straight over the fresh board.
 
+## Target audience: all six are a mixed audience
+
+**The developer's decision, 2026-09-09: every game declares a mixed audience on Play,
+children included.** It is not a per-game judgement, and three `PUBLISHING.md` files
+answered it differently before this — 2048 said "13+ … not enrolled in Designed for
+Families", StackO! said "choosing 13+ avoids that", and Rekta's listing said "not designed
+for children". Those were written game by game and were never a decision anyone took.
+
+The mechanism is already uniform across all six, which is what makes one answer possible:
+
+| Game | Age screen | Threshold |
+|---|---|---|
+| Pawdoku | `lib/screens/age_gate_screen.dart` | 13, `<=` |
+| Kata·Word | `lib/features/age_gate/age_gate_screen.dart` | 13, `<=` |
+| PourFect! | `lib/screens/age_gate_screen.dart` | 13, `<=` |
+| 2048 | `AgeGateActivity.java` + `AgeGate.CHILD_MAX_AGE` | 13, `<=` |
+| Rekta | `AgeGateActivity.java` + `AgeGate.CHILD_MAX_AGE` | 13, `<=` |
+| StackO! | `scripts/age_gate.gd` | 13, `<=` |
+
+All six ask for a **year of birth** rather than "are you a child?" — a yes/no leads the
+answer. All six compare `<=` so an ambiguous year rounds into protection, since a year
+cannot tell whether a birthday has passed. All six set the ad content cap to **G
+unconditionally**, and all six pass child-directed treatment through from the gate's answer
+(`ageRestrictedTreatment` in the Flutter trio, `tag_for_child_directed_treatment` in
+StackO!, `RequestConfiguration` in the native pair).
+
+**The cap and the treatment are scoped differently on purpose.** Play compares served ad
+content to the **store** content rating, so the G cap can never depend on who is holding the
+phone; child treatment is about one player's privacy. Pawdoku took a Families Policy notice
+on 2026-08-23 with nothing in its code changed — the AdMob inventory had rotated — which is
+why the **AdMob account** side matters too: Blocking controls, plus the sensitive-category
+blocks that have no code equivalent. That half reaches players who never update.
+
+**One thing to check against Play's current policy text rather than against this file.**
+Declaring an under-13 band brings Families policy requirements that go beyond ad treatment,
+including constraints on ad **formats**. Five of the six ship rewarded video — Pawdoku and
+Kata·Word's assists, PourFect!'s extra bottle and fourth undo, Rekta's hint, StackO!'s gems
+— and 2048 is the only one with just a banner and an interstitial. Nothing in the code needs
+changing for the declaration; the format question is policy, and policy text moves.
+
 ## Edge-to-edge, and who has to ask for the insets
 
 Android 15 draws every app behind the system bars, so a phone on three-button
