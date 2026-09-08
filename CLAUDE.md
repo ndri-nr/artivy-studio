@@ -314,6 +314,53 @@ those close a publisher account. Auto ads must stay **off**: Google would insert
 adverts wherever it liked, including into the height `--play-chrome` claims to
 know.
 
+## The AdSense rejection, and what the site needed
+
+The application was rejected for **Low value content** (2026-09-07). The reading was
+fair and it was not about placement: 25 pages, twelve of them legal boilerplate, six
+game pages carrying about sixty words of unique prose each, six play pages carrying
+none, and no About, Contact or site-level policy anywhere. A crawler saw JavaScript
+and a copyright line. **Nothing about the ad markup was the problem** — the 100×100
+play-page slot, the 32px clearance and Auto ads staying off were all already right,
+so do not go looking there if it is rejected again.
+
+What it needed was writing, and there is now about 9,000 words of it. Each
+`games/<slug>/index.html` carries a how-to-play guide in a `<section class="guide"
+id="how-to-play">`, written from what that game's `model.js` actually does rather than
+from a description of the genre — so a change to a rule makes the guide wrong, the same
+way an added analytics event makes a privacy page wrong. `artivy/about.html`,
+`artivy/contact.html` and `artivy/sitemap.xml` are new.
+
+**`artivy/privacy.html` is the *website's* policy and is not one of the six.** The
+per-game pages describe the Android apps; AdSense wants one covering the pages the
+adverts are actually on — localStorage, AdSense cookies, Google Fonts, no analytics.
+It carries the loader and no ad unit, like the legal pages. Its EEA/UK/Switzerland
+paragraph describes consent being collected by Google's own message, which is only
+true while the GDPR message is switched on in the AdSense console: **that toggle is
+part of the deploy, not an optional extra.**
+
+**`.guide` lives in `css/styles.css`, and `.game-info-container` sets `> p`.** That
+`>` is load-bearing: as `.game-info-container p` it set 1.2rem/600 — a blurb weight —
+on every paragraph of the guide, and the page's own `<style>` beats the stylesheet on
+a specificity tie because the `<link>` comes first.
+
+**The domain root is a content page now, and has to stay one.** AdSense reviews a
+*domain*, so `ndri-nr.github.io/index.html` is what a reviewer lands on, and it was
+twelve words and an ad loader — quite possibly the page that decided the rejection,
+with the games one path segment away. It is now a real landing page (the six games
+annotated, how the puzzles are proved, what they do not have) written to stand alone
+rather than restating `artivy/about.html`, since duplicating it trades one policy
+problem for another. Self-contained CSS, because a stylesheet imported across the two
+repos would tie one deploy to the other.
+
+**`robots.txt` belongs in that repo too, never in `artivy/`.** Same reason as
+`app-ads.txt`: the root is the only place it is fetched from, so one committed under
+`/artivy/` would exist and never be read. It names `/artivy/sitemap.xml`, and that
+cross-submission is what lets a sitemap under `/artivy/` list the domain root.
+
+The six `selftest.html` harnesses are `noindex, nofollow` and left out of the sitemap —
+thin by nature, and the one thing here that genuinely should not be indexed.
+
 **The browser builds are the games, not the meta around them.** No coins, no
 store, no trophies, no themes, no hints and no daily challenge — Kata·Word's
 daily word, Pawdoku's timed daily and Rekta's rewarded hint are all absent, and
