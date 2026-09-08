@@ -57,11 +57,13 @@ StackO! need nothing added when their turn comes. The per-app step is on the sto
 side — each listing's **Website** field must carry this domain, and an empty one
 fails verification with a message that blames the file instead.
 
-`wordle/CLAUDE.md`, `pawdoku/CLAUDE.md`, `stacko/CLAUDE.md`, `2048/CLAUDE.md` and
-`rekta/CLAUDE.md`
-are the authoritative per-project guides (architecture, gotchas, hidden features).
-**Read the relevant one before touching that project.** Each also has a
-`PUBLISHING.md` with the Play Store release flow.
+**All six** have an authoritative per-project `CLAUDE.md` (architecture, gotchas,
+hidden features) and a `PUBLISHING.md` with the Play Store release flow.
+**Read the relevant one before touching that project.**
+
+PourFect! was the last one without either; both landed 2026-09-08, and its listing
+copy lives in `pourfect/store/LISTING.md` and `pourfect/store/RELEASE_NOTES.md`
+alongside the assets.
 
 **StackO! is Godot/GDScript, not Flutter.** Nothing about the Flutter toolchain,
 `pubspec.yaml`, widgets or Dart applies there, and its build has its own traps —
@@ -69,8 +71,14 @@ see `stacko/PUBLISHING.md` §2 before attempting an Android export.
 
 ## PourFect!
 
-Flutter, water sort, and the newest of the six. `pourfect/CLAUDE.md` is not
-written yet; what follows is the part that is expensive to rediscover.
+Flutter, water sort, and the newest of the six. **`pourfect/CLAUDE.md` is the
+authority now** — this section is a summary kept because it is read from the
+workspace root. Two things in that file are not repeated here: why the splash mark
+calls `Vessel.paint` rather than drawing its own bottle, and the golden harness the
+store screenshots come from.
+
+It is also the only one of the six with **no bundle on any Play track**, which is why
+`versionCode` 7 is still free to rebuild against — see `pourfect/PUBLISHING.md`.
 
 **The level table is data, not a curve.** `paramsFor` in
 `lib/models/generator.dart` writes levels 1 to 9 out one at a time because the
