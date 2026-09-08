@@ -334,10 +334,17 @@ way an added analytics event makes a privacy page wrong. `artivy/about.html`,
 **`artivy/privacy.html` is the *website's* policy and is not one of the six.** The
 per-game pages describe the Android apps; AdSense wants one covering the pages the
 adverts are actually on — localStorage, AdSense cookies, Google Fonts, no analytics.
-It carries the loader and no ad unit, like the legal pages. Its EEA/UK/Switzerland
-paragraph describes consent being collected by Google's own message, which is only
-true while the GDPR message is switched on in the AdSense console: **that toggle is
-part of the deploy, not an optional extra.**
+It carries the loader and no ad unit, like the legal pages.
+
+**The GDPR message is on (three options: Consent / Do not consent / Manage options,
+chosen 2026-09-08), and the page carries the control that reopens it.** Google's CMP
+places no "change your choices" link on a page by itself, so without that button a
+visitor's first answer is final and the policy's promise that it can be changed is
+false. `googlefc` arrives with the AdSense tag but *only* where a consent message
+applies, so the button starts `hidden` and is revealed from the CMP's own
+`CONSENT_DATA_READY` callback — a visitor outside those regions gets the explanation
+instead of a button that would do nothing. Do not "simplify" it into a button that is
+always visible.
 
 **`.guide` lives in `css/styles.css`, and `.game-info-container` sets `> p`.** That
 `>` is load-bearing: as `.game-info-container p` it set 1.2rem/600 — a blurb weight —
