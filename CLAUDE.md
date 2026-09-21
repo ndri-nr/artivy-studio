@@ -146,13 +146,21 @@ because the restore path loaded a snapshot straight over the fresh board.
 
 ## Target audience: all six are a mixed audience
 
-**The developer's decision, 2026-09-09: every game declares a mixed audience on Play,
-children included.** It is not a per-game judgement, and three `PUBLISHING.md` files
-answered it differently before this — 2048 said "13+ … not enrolled in Designed for
-Families", StackO! said "choosing 13+ avoids that", and Rekta's listing said "not designed
-for children". Those were written game by game and were never a decision anyone took.
+**All six have declared a mixed audience on Play, children included, since their
+first submission — this was never changed.** What was decided on 2026-09-09 is
+only what this file says about it: three `PUBLISHING.md` files described the
+declaration wrongly and contradicted each other — 2048 said "13+ … not enrolled in
+Designed for Families", StackO! said "choosing 13+ avoids that", and Rekta's
+listing said "not designed for children". Those were written game by game against
+a setting none of them matched. Read a date here as the day the documentation was
+corrected, not the day the store changed; nothing about the declaration has ever
+been re-submitted, so do not go looking for a re-review it triggered.
 
-The mechanism is already uniform across all six, which is what makes one answer possible:
+The standing consequence is on review times: an under-13 band puts **every**
+submission through Families policy review, not just the one that set it, so a
+build sitting longer than a plain 13+ app is the normal state and not a signal.
+
+The mechanism is uniform across all six, which is why one declaration fits them all:
 
 | Game | Age screen | Threshold |
 |---|---|---|
