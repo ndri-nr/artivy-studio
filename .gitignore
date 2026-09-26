@@ -11,6 +11,7 @@
 /rekta/
 /pourfect/
 /tata/
+/game-center/
 
 # Release artifacts, collected here by hand after every build so there is one
 # place to look instead of six build/ trees. Never tracked: they are large,

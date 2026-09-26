@@ -22,6 +22,7 @@ pulls — each may hold work in progress.
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
 | `pourfect/`          | **PourFect!** — Flutter water-sort puzzle       | `github.com/ndri-nr/pourfect`          |
+| `game-center/`       | **Artivy Game Center** — Flutter, all seven browser builds in one app (`id.artivy.games`) | `github.com/ndri-nr/game-center`       |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
