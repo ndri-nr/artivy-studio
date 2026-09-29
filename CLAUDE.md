@@ -22,7 +22,7 @@ pulls — each may hold work in progress.
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
 | `pourfect/`          | **PourFect!** — Flutter water-sort puzzle       | `github.com/ndri-nr/pourfect`          |
-| `game-center/`       | **Artiverse** — Flutter, seven puzzles + five vs-CPU (and 2P) games in one app, on the way to 100 (`game-center/ROADMAP.md`, `id.artivy.games`) | `github.com/ndri-nr/game-center`       |
+| `game-center/`       | **Artiverse** — Flutter, sixteen games in one app (nine solo, seven vs CPU, all of those 2P, Memory 4P), on the way to 100 (`game-center/ROADMAP.md`, `id.artivy.games`). The only one with a server: `game-center/be/`, a Rust backend holding accounts, the wallet and the leaderboards | `github.com/ndri-nr/game-center`       |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
@@ -224,6 +224,11 @@ Pages site**:
   `.../artivy/2048/*.html`, opened from its Settings panel.
 - `pourfect/lib/screens/settings_screen.dart` (`privacyUrl`/`termsUrl`) →
   `.../artivy/pourfect/*.html`, opened from its Settings screen.
+- `game-center/lib/screens/settings_screen.dart` (same two constants) →
+  `.../artivy/game_center/*.html`. **Artiverse's pages are the only ones
+  describing a server**: an account, an outbox, leaderboards, Auto Backup
+  **off**, the server's retention, and deleting an account from Settings.
+  The app is called Artiverse; the site path keeps `game_center`.
 - `rekta/app/src/main/res/values/strings.xml` (same two keys) →
   `.../artivy/rekta/*.html`, also from its Settings panel.
 
