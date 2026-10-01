@@ -22,7 +22,7 @@ pulls — each may hold work in progress.
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
 | `pourfect/`          | **PourFect!** — Flutter water-sort puzzle       | `github.com/ndri-nr/pourfect`          |
-| `game-center/`       | **Artiverse** — Flutter, eighteen games in one app (nine solo, seven vs CPU, all of those 2P, Memory 4P, plus two party games — Tap Tug, Reflex), on the way to 100 (`game-center/ROADMAP.md`, `id.artivy.games`). The only one with a server: `game-center/be/`, a Rust backend holding accounts, the wallet and the leaderboards | `github.com/ndri-nr/game-center`       |
+| `game-center/`       | **Artiverse** — Flutter, eighteen games in one app (nine solo, seven vs CPU, all of those 2P, Memory 4P, plus two party games — Tap Tug, Reflex), on the way to 100 (`game-center/ROADMAP.md`, `id.artivy.games`). The only one with a server: `game-center/be/`, a Rust backend holding accounts, the wallet and the leaderboards. **Every release build needs `--dart-define=API_BASE` and `PLAY_CLIENT_ID`** — see `game-center/CLAUDE.md` Commands | `github.com/ndri-nr/game-center`       |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
 
