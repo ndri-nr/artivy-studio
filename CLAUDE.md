@@ -188,10 +188,14 @@ blocks that have no code equivalent. That half reaches players who never update.
 
 **One thing to check against Play's current policy text rather than against this file.**
 Declaring an under-13 band brings Families policy requirements that go beyond ad treatment,
-including constraints on ad **formats**. Five of the six ship rewarded video — Pawdoku and
-Kata·Word's assists, PourFect!'s extra bottle and fourth undo, Rekta's hint, StackO!'s gems
-— and 2048 is the only one with just a banner and an interstitial. Nothing in the code needs
-changing for the declaration; the format question is policy, and policy text moves.
+including constraints on ad **formats**. All six now ship rewarded video — Pawdoku and
+Kata·Word's assists, PourFect!'s extra bottle and fourth undo, Rekta's hint, StackO!'s gems,
+and 2048's extra undo (added 2026-10-13). Nothing in the code needs changing for the
+declaration; the format question is policy, and policy text moves. **Rekta was rejected under
+this very requirement on 2026-10-13** ("Family Ad Format Requirements … ads … can't be closed
+after 5 seconds") — see the ad-freshness note below for the app-side guard that shipped in
+response, and note the durable fix is the AdMob account's Families/child-directed configuration,
+not code.
 
 ## Edge-to-edge, and who has to ask for the insets
 
@@ -678,8 +682,10 @@ the idea, not the file.
 - Android ids: `id.artivy.pourfect`, `id.artivy.wordle`, `id.artivy.pawdoku`, `id.artivy.stacko`,
   `id.artivy.puzzle2048`, `id.artivy.rekta`. Publisher "Artivy".
 - **2048 and Rekta are outside this shared shape.** Both are native Java with no
-  coins, no store, no themes, no daily challenge and no rewarded ad — only a banner
-  and an interstitial. Do not go looking for the patterns below in them;
+  coins, no store, no themes and no daily challenge. Each has a banner, an
+  interstitial and a single rewarded ad — Rekta's hint, 2048's extra undo (added
+  2026-10-13) — but none of the currency/store machinery the Flutter trio wrap the
+  rewarded ad in. Do not go looking for the patterns below in them;
   `2048/CLAUDE.md` and `rekta/CLAUDE.md` describe what they actually have.
   Rekta does keep one shared idea: a hidden **7-second** hold on the Settings
   version line that turns ads off for screenshots, the same shape as StackO!'s.
@@ -708,17 +714,19 @@ the idea, not the file.
   toggles ads for that device after 7 seconds on the Version row
   (`AD_HOLD_SECONDS`). The long holds and the tap-vs-hold suppression are
   load-bearing — do not "fix" them.
-- AdMob unit ids: **pawdoku is live** (real units under publisher
-  `pub-8668013395284480`, since 1.0.1+3). Kata·Word, StackO!, 2048 and Rekta still
-  carry Google's **test** ids — `_testInterstitial` etc. in
-  `wordle/lib/services/ad_service.dart`, `USE_TEST_ADS = true` in
-  `stacko/scripts/ads.gd`, `res/values/ads.xml` plus the manifest `APPLICATION_ID` in
-  the two native games. See each `PUBLISHING.md`.
-  **That is the intended order, not an oversight** (developer's call, 2026-08-19): the
-  app has to be on a production track before its real units get registered, so the
-  swap happens right after each promotion rather than before it. Closed testing on
-  test ids is the expected state — don't file it as an outstanding bug, and don't
-  swap ids for a game that has not gone production yet.
+- AdMob unit ids: **four of the six are live** — pawdoku (since 1.0.1+3),
+  Kata·Word and 2048 carry real units under publisher `pub-8668013395284480`, and
+  StackO! has `USE_TEST_ADS = false` in `stacko/scripts/ads.gd` with its own live
+  units. **Rekta and PourFect! still carry Google's test ids** —
+  `ca-app-pub-3940256099942544/*` in `rekta/app/src/main/res/values/ads.xml` (plus
+  the manifest `APPLICATION_ID`) and `_testInterstitial`/`_testRewarded` in
+  `pourfect/lib/services/ads.dart`. See each `PUBLISHING.md`.
+  **That order is the intended one, not an oversight** (developer's call, 2026-08-19):
+  an app has to be on a production track before its real units get registered, so the
+  swap happens right after each promotion rather than before it. The two still on test
+  ids are the two not yet promoted — closed testing on test ids is the expected state,
+  so don't file it as an outstanding bug, and don't swap ids for a game that has not
+  gone production yet.
 - **UMP consent: all five gather it and all five can reopen it.** Every game asks
   before the first ad request and exposes an "Ad privacy options" entry where Google
   reports it as required — the EU user consent policy requires that a user who
@@ -728,29 +736,34 @@ the idea, not the file.
   `_legalLinks` in `lib/screens/home_screen.dart`, next to Privacy Policy and Terms,
   gated on `AdService.privacyOptionsRequired()`. The other four put it in Settings.
   Check the service, not the settings screen, before concluding a game is missing it.
-- **Play in-app updates: all six, and the flow is FLEXIBLE** (it was IMMEDIATE
-  until 2026-09-01). Play shows a small sheet the player can dismiss and the
-  download runs in the background with the game still playable; immediate was a
-  full-screen sheet with no way out of it. Play still owns every pixel — no game
-  draws an update dialog of its own. The Flutter trio go through `in_app_update`
-  (one `_checkForUpdate()` in `main.dart`, scheduled at `Priority.idle` beside the
-  other init) — PourFect! was the one without it until 2026-08-28; the native pair
-  have `Updates.java` next to `Consent.java`; StackO! gets
-  `tools/android/Updates.java` copied into the generated tree by
-  `tools/patch_android.py`, because the flow has to start from the Android activity
+- **Play in-app updates: all six, and the flow is IMMEDIATE** (FLEXIBLE from
+  2026-09-01 until 2026-10-13, reverted because FLEXIBLE did not actually update
+  people). Play takes the screen and installs before the player reaches the game;
+  Play still owns every pixel — no game draws an update dialog of its own. The
+  Flutter trio go through `in_app_update` (one `_checkForUpdate()` in `main.dart`,
+  scheduled at `Priority.idle` beside the other init) — PourFect! was the one
+  without it until 2026-08-28; the native pair have `Updates.java` next to
+  `Consent.java`; StackO! gets `tools/android/Updates.java` copied into the
+  generated tree by `tools/patch_android.py` (the file is copied, not inlined —
+  edit the tracked copy), because the flow has to start from the Android activity
   and Godot exposes no binding for it.
-  **What flexible normally costs — a snackbar, an install listener, a restart
-  prompt — is avoided by never installing mid-session.** A finished download just
-  sits there; the next launch sees `installStatus == downloaded` (the native pair
-  also check it in `onResume`) and completes the install then, so Play's restart
-  lands between sessions rather than in the middle of a puzzle. Completing the
-  instant the download finishes is what would need all that UI, and it is the one
-  thing not to add back.
-  **`check()` belongs in `onCreate`, `resume()` in `onResume`** — the split is the
-  whole design, and it survived the switch. Offering the sheet from `onResume`
-  re-offers it the instant a player declines and returns, which is a loop with no
-  way out; `resume()` never offers, it only installs a download the player already
-  accepted.
+  **Why the revert.** FLEXIBLE downloaded in the background and deferred the
+  install to the next `onCreate`/`onResume` seeing `installStatus == downloaded`.
+  In the field that failed: the player accepted the update, nothing visibly
+  happened, and after killing the app the prompt came back as if nothing installed
+  — the staged install was discarded on the kill — so the Play Store page was the
+  only way to actually update. IMMEDIATE has no background download and no staged
+  install to lose; there is nothing to defer. The deliberate "never install
+  mid-session / no snackbar, no listener, no restart prompt" design that FLEXIBLE
+  carried is gone with it, and `completeUpdate()`/`installStatus` are no longer
+  used anywhere.
+  **`check()` belongs in `onCreate`, `resume()` in `onResume`** — the split
+  survived the revert. `check()` (mayOffer=true) offers an `UPDATE_AVAILABLE`;
+  `resume()` (mayOffer=false) never offers, it only resumes an update already in
+  flight — an IMMEDIATE update interrupted by a kill or rotation leaves
+  `updateAvailability() == DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS`, and both
+  entry points restart the flow on that so the player is never dropped into a
+  half-updated app.
   **None of it is visible on a build you can make locally.** A sideload, a debug APK
   or an emulator gets `ERROR_APP_NOT_OWNED` and the check is a silent no-op, so
   "nothing happened" is not evidence of a wiring mistake. Play's internal app sharing
@@ -779,6 +792,19 @@ the idea, not the file.
   `com.google.android.gms.permission.AD_ID`, Firebase
   Analytics adds `android.permission.AD_ID`, and Play refuses to let the question
   disagree with the manifest. Removing the permission only costs personalised ads.
+- **Full-screen ads are guarded against going stale, across all six (added
+  2026-10-13).** AdMob interstitial and rewarded ads expire about an hour after
+  loading; a stale one can present as a blank, uncloseable grey screen — which is the
+  "ad can't be closed after 5 seconds" a Families review rejects, and what players
+  reported as a hang. Every game now records when each full-screen ad loaded and
+  refuses to show one older than ~50 minutes (`AD_MAX_AGE_MS` / `_adMaxAge`),
+  dropping and reloading it instead and taking the same "no ad this time" path a
+  missing ad already takes. The native pair add a validated-connectivity check in the
+  same `canShow()` gate (an ad is not shown offline); the Flutter trio and StackO!
+  check freshness only, to avoid a connectivity dependency. This is a robustness
+  guard, **not** the fix for Rekta's Families rejection itself — the durable fix for
+  that is the AdMob account's child-directed / Families-ads configuration, which no
+  code change reaches.
 - Crash/analytics differ, and the privacy pages depend on it: wordle has
   Crashlytics + Analytics, pawdoku Crashlytics only, 2048 and rekta Crashlytics +
   Analytics, **stacko Crashlytics + Analytics + the NDK artifact** (it is a native
