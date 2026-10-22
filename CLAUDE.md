@@ -22,9 +22,10 @@ pulls — each may hold work in progress.
 | `2048/`              | **2048** — native Android (Java) sliding-tile puzzle | `github.com/ndri-nr/2048`          |
 | `rekta/`             | **Rekta** — native Android (Java) Shikaku puzzle | `github.com/ndri-nr/rekta`             |
 | `pourfect/`          | **PourFect!** — Flutter water-sort puzzle       | `github.com/ndri-nr/pourfect`          |
-| `game-center/`       | **Artiverse** — Flutter, eighteen games in one app (nine solo, seven vs CPU, all of those 2P, Memory 4P, plus two party games — Tap Tug, Reflex), on the way to 100 (`game-center/ROADMAP.md`, `id.artivy.games`). The only one with a server: `game-center/be/`, a Rust backend holding accounts, the wallet and the leaderboards. **Every release build needs `--dart-define=API_BASE` and `PLAY_CLIENT_ID`** — see `game-center/CLAUDE.md` Commands | `github.com/ndri-nr/game-center`       |
+| `game-center/`       | **Artiverse** — Flutter, eighteen games in one app (nine solo, seven vs CPU, all of those 2P, Memory 4P, plus two party games — Tap Tug, Reflex), on the way to 100 (`game-center/ROADMAP.md`, `id.artivy.games`). The only one with a server: `game-center/be/`, a Rust backend holding accounts, the wallet and the leaderboards, now running on the free InstaBox machine (reached at `https://artiverse.bug.ai.id` via Cloudflare Tunnel, alongside the duel service `artivy-p2p-engine`). **Every release build needs `--dart-define=API_BASE` and `PLAY_CLIENT_ID`** — see `game-center/CLAUDE.md` Commands | `github.com/ndri-nr/game-center`       |
 | `artivy/`            | Publisher website (static HTML, GitHub Pages)   | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob     | `github.com/ndri-nr/ndri-nr.github.io` |
+| `artivy-p2p-engine/` | **Duel engine** — Rust realtime PvP service (a game-agnostic WebSocket match coordinator) for online 2-player duels across the games; on the same InstaBox box as `game-center/be` (`https://duel.bug.ai.id`). Service live; game clients not wired yet | `github.com/ndri-nr/artivy-p2p-engine` |
 
 Every name in `bootstrap.sh`'s list has to be a repo that answers. The list
 carried a directory name no remote ever had for two days once: the script is
@@ -39,8 +40,9 @@ production — a bundle uploaded to closed testing burns that number exactly as 
 production release does. So "has it shipped to production yet" is the wrong
 question; the question is "has anything ever been uploaded for it". Raise
 `version:` in `pubspec.yaml` — name *and* build number — for Pawdoku, Kata·Word
-and StackO!. Only 2048, Rekta and PourFect! can rebuild at the same
-version, and only until their first upload.
+and StackO!. Only PourFect! can still rebuild at the same version, and only
+until its first upload — 2048 and Rekta have both uploaded (Rekta is on
+production as of 1.0.5+6).
 
 Games sitting in testing are finished games, not stalled ones. Don't read
 anything about what this developer can or cannot finish from which titles are on
@@ -714,19 +716,17 @@ the idea, not the file.
   toggles ads for that device after 7 seconds on the Version row
   (`AD_HOLD_SECONDS`). The long holds and the tap-vs-hold suppression are
   load-bearing — do not "fix" them.
-- AdMob unit ids: **four of the six are live** — pawdoku (since 1.0.1+3),
-  Kata·Word and 2048 carry real units under publisher `pub-8668013395284480`, and
-  StackO! has `USE_TEST_ADS = false` in `stacko/scripts/ads.gd` with its own live
-  units. **Rekta and PourFect! still carry Google's test ids** —
-  `ca-app-pub-3940256099942544/*` in `rekta/app/src/main/res/values/ads.xml` (plus
-  the manifest `APPLICATION_ID`) and `_testInterstitial`/`_testRewarded` in
+- AdMob unit ids: **five of the six are live** — pawdoku (since 1.0.1+3),
+  Kata·Word, 2048 and Rekta (since 1.0.5+6) carry real units under publisher
+  `pub-8668013395284480`, and StackO! has `USE_TEST_ADS = false` in
+  `stacko/scripts/ads.gd` with its own live units. **Only PourFect! still carries
+  Google's test ids** — `_testInterstitial`/`_testRewarded` in
   `pourfect/lib/services/ads.dart`. See each `PUBLISHING.md`.
   **That order is the intended one, not an oversight** (developer's call, 2026-08-19):
   an app has to be on a production track before its real units get registered, so the
-  swap happens right after each promotion rather than before it. The two still on test
-  ids are the two not yet promoted — closed testing on test ids is the expected state,
-  so don't file it as an outstanding bug, and don't swap ids for a game that has not
-  gone production yet.
+  swap happens right after each promotion rather than before it. PourFect! on test
+  ids is the expected state — it is the one not yet promoted — so don't file it as an
+  outstanding bug, and don't swap its ids before it goes production.
 - **UMP consent: all five gather it and all five can reopen it.** Every game asks
   before the first ad request and exposes an "Ad privacy options" entry where Google
   reports it as required — the EU user consent policy requires that a user who
@@ -850,3 +850,24 @@ the idea, not the file.
   git-ignored.
 - `// ponytail:` comments mark deliberate simplifications — read before
   "improving" one.
+
+## InstaBox cloud machines
+
+On-demand cloud Linux VMs (docs: `https://instabox.sh/docs`). One machine
+exists: **artivy-studio**, `m_agqwhvxr3js25e53humkaoehei`, `agent-browser`
+template, 4 vCPU / 8 GiB, auto-suspends after 30 min idle.
+
+**The API key is a secret and is NOT in this repo.** It lives in the macOS login
+Keychain under service `instabox-api-key`, the same pattern as the upload signing
+passwords. Read it at build/call time, never paste it into a tracked file:
+
+```bash
+IBK=$(security find-generic-password -s instabox-api-key -w)
+curl -fsS -H "Authorization: Bearer $IBK" https://api.instabox.sh/v1/machines
+# exec: the body field is `cmd`, not `command`; runs bash -lc, output on exit
+curl -fsS -H "Authorization: Bearer $IBK" -H 'Content-Type: application/json' \
+  -X POST https://api.instabox.sh/v1/machines/<id>/exec -d '{"cmd":"uname -a"}'
+```
+
+SDK: `npm i @insforge/instabox-sdk`, `INSTABOX_API_KEY=$IBK`,
+`Sandbox.connect('m_...')`.
