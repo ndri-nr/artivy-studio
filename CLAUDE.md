@@ -13,6 +13,9 @@ The root is itself a small git repo, but a **docs-only** one: it tracks
 subproject directory is gitignored so git cannot record it as a half-made
 gitlink. `bootstrap.sh` clones them on a fresh machine and fast-forwards clean
 existing checkouts; it leaves local changes and diverged branches untouched.
+Source `workspace-env.sh` before builds to use the standard shared dependency
+caches and the workspace-wide Rust target directory. Do not centralize Flutter,
+Android, or Godot project-state directories; they are not interchangeable.
 
 | Dir                  | What                                            | Remote                                 |
 |----------------------|-------------------------------------------------|----------------------------------------|

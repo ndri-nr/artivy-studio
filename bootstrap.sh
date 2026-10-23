@@ -80,4 +80,7 @@ fresh clone has none:
 Release signing reads each keystore password from the login Keychain, so a fresh
 machine needs those items restored from your password manager before any release
 build will work. See CLAUDE.md.
+
+Before building, enable the workspace's shared caches in your shell:
+  source ./workspace-env.sh
 EOF

@@ -41,6 +41,34 @@ safe to run again: repositories with local changes, a detached HEAD, or no
 upstream branch are reported and left untouched; a diverged branch is never
 rewritten.
 
+## Shared dependency and build caches
+
+Before building any project in a new terminal, source the workspace environment:
+
+```bash
+source ./workspace-env.sh
+```
+
+Gradle, Dart/Flutter and Cargo already keep downloaded dependencies in shared
+per-user locations (`~/.gradle`, `~/.pub-cache` and `~/.cargo`). The environment
+script makes those locations explicit, enables Gradle's shared local build cache,
+and sends both Rust services' compiled artifacts to `.cache/cargo-target/` so
+compatible dependencies are not compiled into a separate `target/` directory for
+each service.
+
+Flutter's `.dart_tool/`, Android's project `.gradle/`, Godot's `.godot/`, and each
+app's `build/` directory remain project-local. They contain project-specific state
+and cannot safely be shared. After successfully building both Rust services with
+the environment enabled, their old `artivy-p2p-engine/target/` and
+`game-center/be/target/` directories can be removed to reclaim the old space:
+
+```bash
+cargo clean --manifest-path artivy-p2p-engine/Cargo.toml \
+  --target-dir artivy-p2p-engine/target
+cargo clean --manifest-path game-center/be/Cargo.toml \
+  --target-dir game-center/be/target
+```
+
 ## Why these are not submodules
 
 Each project ships on its own schedule, to its own store listing, with no shared

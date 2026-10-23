@@ -13,6 +13,10 @@
 /game-center/
 /artivy-p2p-engine/
 
+# Shared generated build artifacts configured by workspace-env.sh. Dependency
+# downloads remain in the standard per-user caches so other workspaces reuse them.
+/.cache/
+
 # Release artifacts, collected here by hand after every build so there is one
 # place to look instead of six build/ trees. Never tracked: they are large,
 # regenerable, and signed — a keystore-signed binary has no business in a repo.
