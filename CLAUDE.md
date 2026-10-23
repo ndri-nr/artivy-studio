@@ -11,8 +11,8 @@ subproject, and commit there — never at the root.
 The root is itself a small git repo, but a **docs-only** one: it tracks
 `README.md`, `CLAUDE.md`, `bootstrap.sh` and `.gitignore`, nothing else. Every
 subproject directory is gitignored so git cannot record it as a half-made
-gitlink. `bootstrap.sh` clones them on a fresh machine and deliberately never
-pulls — each may hold work in progress.
+gitlink. `bootstrap.sh` clones them on a fresh machine and fast-forwards clean
+existing checkouts; it leaves local changes and diverged branches untouched.
 
 | Dir                  | What                                            | Remote                                 |
 |----------------------|-------------------------------------------------|----------------------------------------|

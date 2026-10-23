@@ -14,8 +14,10 @@ themselves.
 | `2048/`              | **2048** — sliding-tile puzzle                | native Android (Java)| `github.com/ndri-nr/2048`              |
 | `rekta/`             | **Rekta** — Shikaku puzzle                    | native Android (Java)| `github.com/ndri-nr/rekta`             |
 | `pourfect/`          | **PourFect!** — water-sort puzzle             | Flutter              | `github.com/ndri-nr/pourfect`          |
+| `game-center/`       | **Artiverse** — multi-game app and backend    | Flutter · Rust       | `github.com/ndri-nr/game-center`       |
 | `artivy/`            | Publisher site incl. every game's legal pages | static HTML · Pages  | `github.com/ndri-nr/artivy`            |
 | `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob   | one text file        | `github.com/ndri-nr/ndri-nr.github.io` |
+| `artivy-p2p-engine/` | Realtime multiplayer duel service             | Rust · WebSocket     | `github.com/ndri-nr/artivy-p2p-engine` |
 
 `ndri-nr.github.io/` is a separate repo and has to be. AdMob takes the domain from
 an app's Play listing and crawls `https://<domain>/app-ads.txt` — the root, path
@@ -32,6 +34,12 @@ git clone https://github.com/ndri-nr/artivy-studio.git
 cd artivy-studio
 ./bootstrap.sh
 ```
+
+The bootstrap script clones every missing project and fast-forwards existing
+clean checkouts. It uses the same SSH/HTTPS transport as `artivy-studio` and is
+safe to run again: repositories with local changes, a detached HEAD, or no
+upstream branch are reported and left untouched; a diverged branch is never
+rewritten.
 
 ## Why these are not submodules
 
