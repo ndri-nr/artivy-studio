@@ -5,6 +5,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+hydrate_dependencies=1
+if [ "${1:-}" = "--skip-deps" ]; then
+    hydrate_dependencies=0
+elif [ "$#" -gt 0 ]; then
+    printf 'usage: %s [--skip-deps]\n' "$0" >&2
+    exit 2
+fi
+
 # ndri-nr.github.io serves app-ads.txt from the domain root, which is the only
 # place AdMob will look for it — the artivy site is a project page at /artivy/
 # and structurally cannot answer for the root. Its own README explains why.
@@ -60,6 +68,53 @@ for name in "${repos[@]}"; do
     fi
 done
 
+if (( hydrate_dependencies )); then
+    # Keep all downloads in the shared per-user caches configured for the
+    # workspace; only project-specific generated state remains local.
+    # shellcheck disable=SC1091
+    source ./workspace-env.sh
+
+    flutter_projects=(wordle pawdoku stacko pourfect game-center)
+    for name in "${flutter_projects[@]}"; do
+        if [ -f "$name/pubspec.yaml" ]; then
+            if (cd "$name" && flutter pub get); then
+                printf '%-18s Flutter packages ready\n' "$name"
+            else
+                printf '%-18s FAILED   — flutter pub get\n' "$name" >&2
+                failures=$((failures + 1))
+            fi
+        fi
+    done
+
+    android_projects=(2048 rekta)
+    android_sdk="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+    for name in "${android_projects[@]}"; do
+        if [ -x "$name/gradlew" ]; then
+            if [ ! -f "$name/local.properties" ] && [ -d "$android_sdk" ]; then
+                printf 'sdk.dir=%s\n' "$android_sdk" > "$name/local.properties"
+            fi
+            if (cd "$name" && ./gradlew --no-daemon help); then
+                printf '%-18s Gradle dependencies ready\n' "$name"
+            else
+                printf '%-18s FAILED   — Gradle bootstrap\n' "$name" >&2
+                failures=$((failures + 1))
+            fi
+        fi
+    done
+
+    rust_manifests=(game-center/be/Cargo.toml artivy-p2p-engine/Cargo.toml)
+    for manifest in "${rust_manifests[@]}"; do
+        if [ -f "$manifest" ]; then
+            if cargo fetch --manifest-path "$manifest"; then
+                printf '%-18s Rust packages ready\n' "$(dirname "$manifest")"
+            else
+                printf '%-18s FAILED   — cargo fetch\n' "$(dirname "$manifest")" >&2
+                failures=$((failures + 1))
+            fi
+        fi
+    done
+fi
+
 if (( failures > 0 )); then
     printf '\nBootstrap completed with %d failure(s). See the messages above.\n' "$failures" >&2
     exit 1
@@ -68,19 +123,15 @@ fi
 cat <<'EOF'
 
 Toolchain these need, none of it installed by this script:
-  brew install --cask flutter godot     # wordle, pawdoku / stacko
+  brew install --cask flutter           # all Flutter apps, including StackO!
   Android SDK (Android Studio)          # 2048 builds with Gradle only, no Flutter
   JDK 21 for Android builds             # /usr/libexec/java_home -v 21
   Rust stable (rustup.rs)                # game-center/be, artivy-p2p-engine
-
-2048 also needs its own local.properties pointing at the SDK — gitignored, so a
-fresh clone has none:
-  echo "sdk.dir=$HOME/Library/Android/sdk" > 2048/local.properties
 
 Release signing reads each keystore password from the login Keychain, so a fresh
 machine needs those items restored from your password manager before any release
 build will work. See CLAUDE.md.
 
-Before building, enable the workspace's shared caches in your shell:
-  source ./workspace-env.sh
+Dependencies were downloaded into shared caches. In each new terminal, enable
+the same cache configuration with: source ./workspace-env.sh
 EOF

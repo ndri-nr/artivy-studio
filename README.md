@@ -1,110 +1,77 @@
 # artivy-studio
 
-Workspace for the **Artivy** mobile games and the publisher site. This repo holds
-the workspace documentation and a bootstrap script — **not** the projects
-themselves.
+Workspace launcher and shared documentation for the Artivy apps, services, and
+publisher site. Each child directory is an independent Git repository with its
+own release history.
 
-## The projects
+## Projects
 
-| Dir                  | What                                          | Stack                | Remote                                 |
-|----------------------|-----------------------------------------------|----------------------|----------------------------------------|
-| `wordle/`            | **Kata·Word** — Wordle-style word game        | Flutter · Riverpod   | `github.com/ndri-nr/wordle`            |
-| `pawdoku/`           | **Pawdoku** — cat-themed logic puzzle         | Flutter · Provider   | `github.com/ndri-nr/pawdoku`           |
-| `stacko/`            | **StackO!** — isometric neon block stacker    | Godot 4.7 · GDScript | `github.com/ndri-nr/stacko`            |
-| `2048/`              | **2048** — sliding-tile puzzle                | native Android (Java)| `github.com/ndri-nr/2048`              |
-| `rekta/`             | **Rekta** — Shikaku puzzle                    | native Android (Java)| `github.com/ndri-nr/rekta`             |
-| `pourfect/`          | **PourFect!** — water-sort puzzle             | Flutter              | `github.com/ndri-nr/pourfect`          |
-| `game-center/`       | **Artiverse** — multi-game app and backend    | Flutter · Rust       | `github.com/ndri-nr/game-center`       |
-| `artivy/`            | Publisher site incl. every game's legal pages | static HTML · Pages  | `github.com/ndri-nr/artivy`            |
-| `ndri-nr.github.io/` | `app-ads.txt` at the domain root, for AdMob   | one text file        | `github.com/ndri-nr/ndri-nr.github.io` |
-| `artivy-p2p-engine/` | Realtime multiplayer duel service             | Rust · WebSocket     | `github.com/ndri-nr/artivy-p2p-engine` |
+| Directory | Product | Stack |
+|---|---|---|
+| `wordle/` | Kata·Word | Flutter |
+| `pawdoku/` | Pawdoku | Flutter |
+| `stacko/` | StackO! | Flutter |
+| `pourfect/` | PourFect! | Flutter |
+| `game-center/` | Artiverse app and backend | Flutter + Rust |
+| `2048/` | 2048 | Native Android |
+| `rekta/` | Rekta | Native Android |
+| `artivy-p2p-engine/` | Multiplayer duel service | Rust |
+| `artivy/` | Product/legal website | Static web |
+| `ndri-nr.github.io/` | Root `app-ads.txt` publisher site | Static web |
 
-`ndri-nr.github.io/` is a separate repo and has to be. AdMob takes the domain from
-an app's Play listing and crawls `https://<domain>/app-ads.txt` — the root, path
-ignored. `artivy/` is a GitHub Pages *project* site served at `/artivy/` and can
-never answer for the root, so the file placed there would exist and never be
-found. Only a repo named `<user>.github.io` serves that root. It is also the only
-public repo besides `artivy/`, which is fine: `app-ads.txt` is a public
-declaration by design and the publisher ID in it travels in every ad request.
+## Bootstrap a machine
 
-## Setting up a machine
-
-```bash
+```sh
 git clone https://github.com/ndri-nr/artivy-studio.git
 cd artivy-studio
 ./bootstrap.sh
 ```
 
-The bootstrap script clones every missing project and fast-forwards existing
-clean checkouts. It uses the same SSH/HTTPS transport as `artivy-studio` and is
-safe to run again: repositories with local changes, a detached HEAD, or no
-upstream branch are reported and left untouched; a diverged branch is never
-rewritten.
+The script:
 
-## Shared dependency and build caches
+- clones every missing related repository;
+- fast-forwards clean existing checkouts without overwriting local work;
+- uses the same SSH or HTTPS transport as this repository;
+- downloads Flutter, Gradle, and Rust dependencies into shared caches;
+- writes missing native-Android `local.properties` when the standard SDK path
+  exists.
 
-Before building any project in a new terminal, source the workspace environment:
+Use `./bootstrap.sh --skip-deps` when only repository synchronization is wanted.
 
-```bash
+## Shared caches
+
+In every new terminal:
+
+```sh
 source ./workspace-env.sh
 ```
 
-Gradle, Dart/Flutter and Cargo already keep downloaded dependencies in shared
-per-user locations (`~/.gradle`, `~/.pub-cache` and `~/.cargo`). The environment
-script makes those locations explicit, enables Gradle's shared local build cache,
-and sends both Rust services' compiled artifacts to `.cache/cargo-target/` so
-compatible dependencies are not compiled into a separate `target/` directory for
-each service.
+This standardizes:
 
-Flutter's `.dart_tool/`, Android's project `.gradle/`, Godot's `.godot/`, and each
-app's `build/` directory remain project-local. They contain project-specific state
-and cannot safely be shared. After successfully building both Rust services with
-the environment enabled, their old `artivy-p2p-engine/target/` and
-`game-center/be/target/` directories can be removed to reclaim the old space:
+- Gradle dependencies and build cache: `~/.gradle`
+- Flutter/Dart packages: `~/.pub-cache`
+- Rust registry and Git dependencies: `~/.cargo`
+- compatible Rust compilation output: `.cache/cargo-target`
 
-```bash
-cargo clean --manifest-path artivy-p2p-engine/Cargo.toml \
-  --target-dir artivy-p2p-engine/target
-cargo clean --manifest-path game-center/be/Cargo.toml \
-  --target-dir game-center/be/target
-```
+Project `.dart_tool`, `.gradle`, and `build` directories remain local because
+they contain project-specific state. Reclaim an individual Flutter app's output
+with `flutter clean`; do not duplicate or routinely delete the shared caches.
 
-## Why these are not submodules
+## Toolchain
 
-Each project ships on its own schedule, to its own store listing, with no shared
-build, no shared package and no CI that builds them together. Submodules would buy
-a consistent snapshot of them all — which nothing here consumes — and charge for it
-on every single change: two commits instead of one, a detached HEAD by default, and
-a stale pointer whenever the second commit is forgotten.
+- Flutter and Dart for five client apps
+- Android SDK 36 and Java 17/21 as required by each Gradle project
+- Rust stable for the Artiverse backend and duel service
+- Python 3/Pillow for store artwork utilities
 
-The one real coupling runs the other way anyway. Each app links to its own privacy
-policy and terms **by URL** at runtime:
+Godot is no longer required. StackO! is a production Flutter app while retaining
+its package ID `id.artivy.stacko` and Play Store signing lineage.
 
-- `wordle/lib/models/game_config.dart` → `.../artivy/kata_word/*.html`
-- `pawdoku/lib/screens/home_screen.dart` → `.../artivy/pawdoku/*.html`
-- `stacko/scripts/menu_ui.gd` → `.../artivy/stacko/*.html`
-- `2048/app/src/main/res/values/strings.xml` → `.../artivy/2048/*.html`
-- `rekta/app/src/main/res/values/strings.xml` → `.../artivy/rekta/*.html`
-- `pourfect/lib/screens/settings_screen.dart` → `.../artivy/pourfect/*.html`
+## Cross-repository responsibilities
 
-A submodule pointer cannot enforce that: the live site is whatever `artivy/main`
-last deployed, not whatever commit a pointer names. What keeps it honest is
-remembering to edit the matching page in `artivy/games/<slug>/` when a game
-changes what it collects — which is written down in `CLAUDE.md`, where it
-belongs. Note the `games/` in the repo path and its absence from the URL: the
-Pages workflow flattens that directory to the site root on deploy, so the links
-baked into shipped apps keep resolving.
+App privacy/terms links are served by `artivy/`; `app-ads.txt` must remain in the
+root `ndri-nr.github.io/` repository because ad crawlers ignore project-site URL
+paths. When telemetry, ads, accounts, storage, or data collection changes in an
+app, update its matching legal page in the same release.
 
-If a shared Dart package or a CI job that builds every game ever appears, that is
-the moment to revisit this — as a real monorepo rather than submodules.
-
-## Where the details live
-
-`CLAUDE.md` here covers what spans the workspace: the cross-repo legal-page
-coupling, release signing (keystore passwords live in the macOS login Keychain, not
-on disk), the toolchain, and which patterns are shared between the games versus
-merely similar.
-
-Anything specific to one project is in that project's own `CLAUDE.md` and
-`PUBLISHING.md`. Read those before touching it — each has traps that cost real time
-to rediscover.
+Read each project's `CLAUDE.md` and `PUBLISHING.md` before release work.
