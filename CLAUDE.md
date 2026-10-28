@@ -36,14 +36,14 @@ Flutter project:
 dart format lib test
 flutter analyze
 flutter test
-flutter build apk --release
+flutter build appbundle --release
 ```
 
 Native Android project:
 
 ```sh
 ./gradlew test
-./gradlew assembleRelease
+./gradlew bundleRelease
 ```
 
 Rust project:
@@ -53,8 +53,8 @@ cargo fmt --check --manifest-path path/to/Cargo.toml
 cargo test --manifest-path path/to/Cargo.toml
 ```
 
-Follow each project's own instructions where they are stricter. Build an AAB
-only after its release APK has passed device testing.
+Follow each project's own instructions where they are stricter. Release builds
+produce AABs only; do not build an APK unless the user explicitly asks for one.
 
 ## Production identities and signing
 
@@ -85,3 +85,15 @@ Generated Flutter/Gradle output may be removed with project-native clean tasks.
 Preserve store assets under each project's `release/` directory. Never delete a
 workspace root, a shared dependency cache, keystores, or user-authored dirty
 changes as cleanup.
+
+After copying a release AAB to the workspace `builds/` directory with its
+versioned filename and verifying the copy, delete all generated `.aab` and
+`.apk` files left under the source repository's `build/` directories, including
+intermediary bundles. The versioned file in `builds/` is the only retained
+release artifact; this rule applies to every app repository in the workspace.
+
+Game Center release AABs must always be built with both production Dart defines
+from `game-center/CLAUDE.md`: `API_BASE=https://artiverse.bug.ai.id` and the
+documented `PLAY_CLIENT_ID`. A build without either define is an offline build
+without accounts, leaderboards, or Play Games and must never be copied to
+`builds/` or handed off as a release artifact.
