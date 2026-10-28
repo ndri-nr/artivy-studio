@@ -27,6 +27,7 @@ repos=(
     artivy
     ndri-nr.github.io
     artivy-p2p-engine
+    adledger
 )
 
 # Match the transport used to clone artivy-studio. This lets an SSH checkout
@@ -86,7 +87,7 @@ if (( hydrate_dependencies )); then
         fi
     done
 
-    android_projects=(2048 rekta)
+    android_projects=(2048 rekta adledger)
     android_sdk="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
     for name in "${android_projects[@]}"; do
         if [ -x "$name/gradlew" ]; then

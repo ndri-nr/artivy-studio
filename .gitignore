@@ -12,6 +12,7 @@
 /pourfect/
 /game-center/
 /artivy-p2p-engine/
+/adledger/
 
 # Shared generated build artifacts configured by workspace-env.sh. Dependency
 # downloads remain in the standard per-user caches so other workspaces reuse them.

@@ -20,7 +20,7 @@ per-project `GRADLE_USER_HOME`; it duplicates downloads across Android apps.
 ## Current stacks
 
 - Flutter: `wordle`, `pawdoku`, `stacko`, `pourfect`, `game-center`
-- Native Android: `2048`, `rekta`
+- Native Android: `2048`, `rekta`, `adledger`
 - Rust: `game-center/be`, `artivy-p2p-engine`
 - Static web: `artivy`, `ndri-nr.github.io`
 
