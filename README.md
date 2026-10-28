@@ -15,6 +15,7 @@ own release history.
 | `game-center/` | Artiverse app and backend | Flutter + Rust |
 | `2048/` | 2048 | Native Android |
 | `rekta/` | Rekta | Native Android |
+| `adledger/` | AdLedger | Native Android |
 | `artivy-p2p-engine/` | Multiplayer duel service | Rust |
 | `artivy/` | Product/legal website | Static web |
 | `ndri-nr.github.io/` | Root `app-ads.txt` publisher site | Static web |
