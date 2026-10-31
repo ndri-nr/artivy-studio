@@ -22,7 +22,7 @@ per-project `GRADLE_USER_HOME`; it duplicates downloads across Android apps.
 - Flutter: `wordle`, `pawdoku`, `stacko`, `pourfect`, `game-center`
 - Native Android: `2048`, `rekta`, `adledger`
 - Rust: `game-center/be`, `artivy-p2p-engine`
-- Static web: `artivy`, `ndri-nr.github.io`
+- Static web: `artivy`
 
 StackO! is Flutter-only. Godot, its export templates, plugins, and generated
 Android host are retired. Its production application ID remains
@@ -76,8 +76,8 @@ An app behavior change that affects collection, storage, analytics, advertising,
 accounts, or deletion also requires reviewing `artivy/games/<slug>/`. Runtime
 URLs omit `games/` because the Pages deploy flattens that directory.
 
-The publisher declaration must remain at `ndri-nr.github.io/app-ads.txt`; the
-`artivy` project site cannot serve the domain root crawled by AdMob.
+The publisher declaration is maintained at `artivy/publisher/app-ads.txt` and
+copied to the `artivy.id` domain root during deployment.
 
 ## Cleanup
 

@@ -18,7 +18,6 @@ own release history.
 | `adledger/` | AdLedger | Native Android |
 | `artivy-p2p-engine/` | Multiplayer duel service | Rust |
 | `artivy/` | Product/legal website | Static web |
-| `ndri-nr.github.io/` | Root `app-ads.txt` publisher site | Static web |
 
 ## Bootstrap a machine
 
@@ -70,9 +69,8 @@ its package ID `id.artivy.stacko` and Play Store signing lineage.
 
 ## Cross-repository responsibilities
 
-App privacy/terms links are served by `artivy/`; `app-ads.txt` must remain in the
-root `ndri-nr.github.io/` repository because ad crawlers ignore project-site URL
-paths. When telemetry, ads, accounts, storage, or data collection changes in an
-app, update its matching legal page in the same release.
+App privacy/terms links and the root `app-ads.txt` are served by `artivy/`.
+When telemetry, ads, accounts, storage, or data collection changes in an app,
+update its matching legal page in the same release.
 
 Read each project's `CLAUDE.md` and `PUBLISHING.md` before release work.
