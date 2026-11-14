@@ -92,8 +92,8 @@ versioned filename and verifying the copy, delete all generated `.aab` and
 intermediary bundles. The versioned file in `builds/` is the only retained
 release artifact; this rule applies to every app repository in the workspace.
 
-Game Center release AABs must always be built with both production Dart defines
-from `game-center/CLAUDE.md`: `API_BASE=https://artiverse.bug.ai.id` and the
-documented `PLAY_CLIENT_ID`. A build without either define is an offline build
-without accounts, leaderboards, or Play Games and must never be copied to
-`builds/` or handed off as a release artifact.
+Game Center release AABs must always be built with the three production Dart
+defines from `game-center/CLAUDE.md`: `API_BASE=https://artiverse.artivy.id`,
+the documented `PLAY_CLIENT_ID`, and `DUEL_BASE=https://duel.artivy.id`.
+Missing defines can disable accounts, Play Games, or Online Duel in an
+otherwise valid build; never copy such a build to `builds/`.
